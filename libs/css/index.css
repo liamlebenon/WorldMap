@@ -1,0 +1,27 @@
+body {
+    margin: 0;
+}
+
+h1 {
+    display: inline-block;
+}
+
+.navbar {
+    padding: 0.5rem;
+    height: 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    justify-content: center;
+}
+
+.navbar #country {
+    height: 2rem;
+    min-width: 200px;
+    width: 20%;
+    margin: auto;
+    justify-content: center;
+}
+
+#mapid {
+    height: 100vh;
+}
