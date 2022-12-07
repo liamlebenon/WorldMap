@@ -16,10 +16,45 @@ L.marker([0, 0]).addTo(map)
     .openPopup();
 
 
-// jQuery below:
-// Populate the dropdown menu:
-let selectedCountry;
+const createPolygon = (coordinates) => {
+
+};
+
+$('#document').ready(() => {
+    $.ajax({
+        url: 'libs/php/server.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            action: 'populateSelect'
+        },
+        success: (result) => {
+            result['features'].forEach((country) => {
+                $("<option>", {
+                    value: country.properties.iso_a2,
+                    text: country.properties.name
+                }).appendTo('#countries');
+            })
+        }
+    });
+});
+
 $('#countries').change(() => {
-    selectedCountry = $('#countries').val();
-    console.log(selectedCountry);
+    console.log($('#countries').val());
+});
+
+$('#test').click(() => {
+    alert('Clicked')
+    $.ajax({
+        url: 'libs/php/server.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            action: 'getCountryBorders',
+            iso_a2: $('#countries').val()
+        },
+        success: (result) => {
+            console.log(result);
+        }
+    });
 });
