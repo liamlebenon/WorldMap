@@ -17,18 +17,19 @@
 		$data = json_decode($data, true);
 		$countries = array();
 		for($i = 0; $i < count($data['features']); $i++) {
-			$countries[] = array($data['features'][$i]['properties']['iso_a2']=>$data['features'][$i]['geometry']);
+			$countries[$data['features'][$i]['properties']['iso_a2']] = $data['features'][$i]['geometry'];
 		}
 		return $countries;
 	}
 
 	function getCountryBorders($iso_a2) {
-		print_r(getCountriesArray());
+		$countries = getCountriesArray();
+		echo json_encode($countries[$iso_a2]);
 	}
 
 	function populateSelect() {
 		$data = file_get_contents('../../data.json');
 		echo $data;
 	};
-	
+
 ?>

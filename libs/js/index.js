@@ -16,10 +16,6 @@ L.marker([0, 0]).addTo(map)
     .openPopup();
 
 
-const createPolygon = (coordinates) => {
-
-};
-
 $('#document').ready(() => {
     $.ajax({
         url: 'libs/php/server.php',
@@ -39,12 +35,8 @@ $('#document').ready(() => {
     });
 });
 
-$('#countries').change(() => {
-    console.log($('#countries').val());
-});
-
-$('#test').click(() => {
-    alert('Clicked')
+$('#countries').change(() => {    
+    console.log('Changed')
     $.ajax({
         url: 'libs/php/server.php',
         type: 'POST',
@@ -55,6 +47,8 @@ $('#test').click(() => {
         },
         success: (result) => {
             console.log(result);
+            const border = L.geoJSON(result);
+            border.addTo(map);
         }
     });
 });
