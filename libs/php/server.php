@@ -22,6 +22,7 @@
 		return $countries;
 	}
 
+
 	function getCountryBorders($iso_a2) {
 		$countries = getCountriesArray();
 		echo json_encode($countries[$iso_a2]);

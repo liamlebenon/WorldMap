@@ -11,9 +11,34 @@ const tiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/
 
 tiles.addTo(map);
 
-L.marker([0, 0]).addTo(map)
-    .bindPopup('A working popup')
-    .openPopup();
+const findUserLocation = () => {
+    const showPosition = (position) => {
+        console.log(position.coords.longitude)    
+        $.ajax({
+            url: 'libs/php/findUserLocation.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            },
+            success: (result) => {
+                setBorder('getCountryBorders', result.trim())
+            }
+        });
+    };
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+
+
+};
+
+let border = findUserLocation();
+
 
 
 $('#document').ready(() => {
@@ -30,25 +55,32 @@ $('#document').ready(() => {
                     value: country.properties.iso_a2,
                     text: country.properties.name
                 }).appendTo('#countries');
-            })
+            });
         }
     });
 });
 
-$('#countries').change(() => {    
-    console.log('Changed')
+const setBorder = (action, iso_a2) => {
     $.ajax({
         url: 'libs/php/server.php',
         type: 'POST',
         dataType: 'json',
         data: {
-            action: 'getCountryBorders',
-            iso_a2: $('#countries').val()
+            action: action,
+            iso_a2: iso_a2
         },
         success: (result) => {
-            console.log(result);
-            const border = L.geoJSON(result);
+            border = L.geoJSON(result);
             border.addTo(map);
         }
     });
+}
+
+const removeBorder = () => {
+    map.removeLayer(border);
+}
+
+$('#countries').change(() => {    
+    removeBorder();
+    setBorder('getCountryBorders', $('#countries').val());
 });
