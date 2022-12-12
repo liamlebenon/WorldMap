@@ -31,12 +31,13 @@ const centerMap = (countryCode) => {
             $('#countryInfo').html(
                 `<div class='country-info'>
                     <h1>${info[0].name}</h1>
+                    <hr />
                     <ul>
-                        <li>Capital City: ${info[0].capital}</li>
-                        <li>Population: ${info[0].population / 1000} million</li>
-                        <li>Land Area: ${info[0].surface_area.toLocaleString('en-US')} km&#178;</li>
-                        <li>Density: ${info[0].pop_density} /km&#178;</li>
-                        <li>Currency: ${info[0].currency.code}</li>
+                        <li><b>Capital City</b>: ${info[0].capital}</li>
+                        <li><b>Population</b>: ${info[0].population / 1000} million</li>
+                        <li><b>Land Area</b>: ${info[0].surface_area.toLocaleString('en-US')} km&#178;</li>
+                        <li><b>Density</b>: ${info[0].pop_density} /km&#178;</li>
+                        <li><b>Currency</b>: ${info[0].currency.code}</li>
                     </ul>
                 </div>`
             );
