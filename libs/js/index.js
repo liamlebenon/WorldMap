@@ -113,6 +113,11 @@ $('#document').ready(() => {
                     text: country.properties.name
                 }).appendTo('#countries');
             });
+            // Sort alphabetically
+            $("#countries").append($("#countries option").remove().sort(function(a, b) {
+                var at = $(a).text(), bt = $(b).text();
+                return (at > bt)?1:((at < bt)?-1:0);
+            }));  
         }
     });
 });
