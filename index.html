@@ -2,11 +2,11 @@
 <html lang="'en">
     <head>
         <meta charset="utf-8">
-        <link rel="stylesheet" href="./libs/css/index.css"/>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
             integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
             crossorigin=""
-        />
+        />        
+        <link rel="stylesheet" href="./libs/css/index.css"/>
         <script type="application/javascript" src="./libs/js/jquery-2.2.3.min.js"></script>
         <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
             integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
@@ -16,11 +16,15 @@
     </head>
     <body>
         <div class="navbar">
-            <h1 id="test">Map of the World</h1>
+            <h1>Map of the World</h1>
             <select id="countries">
             </select>
+        </div>            
+        <div id="countryInfo">
+            <h1>Loading data...</h1>
         </div>
         <div id="mapid"></div>
+        </div>
         <script type="application/javascript" src="./libs/js/index.js"></script>
     </body>
 </html>

@@ -6,7 +6,8 @@ const attribution =
 // Implement the tiles to use
 const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const tiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+    noWrap: true
 });
 
 tiles.addTo(map);
@@ -26,12 +27,16 @@ const centerMap = (countryCode) => {
             const info = getCountryInfo(countryCode);
             map.setView([coords.lat, coords.lng], 5);
             marker.setLatLng(coords);
-            console.log(info[0])
-            marker.bindPopup(
-                `<div>
+            const rate = getExchangeRate(info[0].currency.code);
+            $('#countryInfo').html(
+                `<div class='country-info'>
                     <h1>${info[0].name}</h1>
                     <ul>
                         <li>Capital City: ${info[0].capital}</li>
+                        <li>Population: ${info[0].population / 1000} million</li>
+                        <li>Land Area: ${info[0].surface_area.toLocaleString('en-US')} km&#178;</li>
+                        <li>Density: ${info[0].pop_density} /km&#178;</li>
+                        <li>Currency: ${info[0].currency.code}</li>
                     </ul>
                 </div>`
             );
@@ -111,7 +116,7 @@ $('#document').ready(() => {
     });
 });
 
-// This will set the boarder of the country based on the country code
+// This will set the border of the country based on the country code
 const setBorder = (action, countryCode) => {
     $.ajax({
         url: 'libs/php/server.php',
@@ -127,6 +132,39 @@ const setBorder = (action, countryCode) => {
         }
     });
 }
+
+const getExchangeRate = (currency) => {
+    let data = '';
+    $.ajax({
+        url: 'libs/php/getExchangeRate.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            apiKey: '9bb231730c7a45e9b85d3b99befa7ff6'
+        },
+        success: (result) => {
+            data = result.rates[currency];
+            console.log(data)
+        }
+    });
+    return data;
+}
+
+// Find locations of the top tourist areas in the country
+const getAreasOfInterest = (countryName) => {
+    $.ajax({
+        url: 'libs/php/getAreasOfInterest.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            apiKey: '5ae2e3f221c38a28845f05b636450e0f3469078a46d900f87c76e8b6',
+            countryName: countryName.replaceAll(' ', '')
+        },
+        success: (result) => {
+            console.log(result);
+        }
+    });
+};
 
 // Helper function to remove borders
 const removeBorder = () => {
