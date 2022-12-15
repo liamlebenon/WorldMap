@@ -1,20 +1,25 @@
 <?php
 
-    $url = 'https://openexchangerates.org/api/latest.json?app_id=' . $_REQUEST['apiKey'];  
+$url = 'https://api.apilayer.com/exchangerates_data/latest?base=' . $_REQUEST['currencyCode'];  
 
-    $curl = curl_init($url);
-    
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($curl, CURLOPT_URL,$url);
+$headers = [
+    'apikey: ' . $_REQUEST['apiKey'],
+    'Content-Type: application/json'
+];
+$curl = curl_init($url);
 
-    $response = curl_exec($curl);
-    curl_close($curl);
+curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($curl, CURLOPT_URL,$url);
 
-    $response = json_decode($response, true);
+$response = curl_exec($curl);
+curl_close($curl);
 
-    header('Content-Type: application/json; charset=UTF-8');
+$response = json_decode($response, true);
 
-    echo json_encode($response);
+header('Content-Type: application/json; charset=UTF-8');
+
+echo json_encode($response);
 
 ?>

@@ -38,6 +38,10 @@ const centerMap = (countryCode) => {
                         <li><b>Density</b>: ${info[0].pop_density} /km&#178;</li>
                         <li><b>Currency</b>: ${info[0].currency.code}</li>
                     </ul>
+                    <div id='moreInfo'>
+                        <button id='financial' onClick='displayEconomicInfo("${info[0].currency.code}")'>Economic Info</button>
+                        <button id='weather' onClick='getWeatherInfo()'>Weather Info</button>
+                    </div>
                 </div>`
             );
             marker.openPopup();
@@ -88,7 +92,7 @@ const getCountryInfo = (countryCode) => {
         },
         success: (result) => {
             data = result;
-        }
+    }
     });
     return data;
 };
@@ -106,6 +110,7 @@ $('#document').ready(() => {
             action: 'populateSelect'
         },
         success: (result) => {
+            console.log(result)
             result['features'].forEach((country) => {
                 $("<option>", {
                     value: country.properties.iso_a2,
@@ -139,33 +144,72 @@ const setBorder = (action, countryCode) => {
     });
 }
 
-const getExchangeRate = (currency) => {
-    let data = '';
-    $.ajax({
-        url: 'libs/php/getExchangeRate.php',
-        type: 'POST',
-        dataType: 'json',
-        data: {
-            apiKey: '9bb231730c7a45e9b85d3b99befa7ff6'
-        },
-        success: (result) => {
-            data = result.rates[currency];
-            console.log(data)
-        }
-    });
-    return data;
-}
-
-// Find locations of the top tourist areas in the country
-
 // Helper function to remove borders
 const removeBorder = () => {
     map.removeLayer(border);
 }
 
+// Handle button clicks for extra information
+const getEconomicInfo = (currencyCode) => {
+    let data = '';
+    $.ajax({
+        url: 'libs/php/getExchangeRate.php',
+        type: 'POST',
+        async: false,
+        dataType: 'json',
+        data: {
+            apiKey: '34NzIC9tuEyonUwU00QpIlmsL7AnS1ow',
+            currencyCode: currencyCode
+        },
+        success: (result) => {
+            data = result;
+        }
+    });
+    return data;
+}
+
+const displayEconomicInfo = (currencyCode) => {
+    console.log('This is executing');
+    $('#currencies').html('');
+    $('#currencyResult').html('')
+    const data = getEconomicInfo(currencyCode);
+    $('#currencies').html(
+        Object.keys(data.rates).forEach((key) => {
+            $('<option>', {
+                value: data.rates[key],
+                text: key,
+                base: currencyCode
+            }).appendTo('#currencies');
+        })
+    )
+
+    $('#extraInfo').css('display', 'block');
+};
+
+// Update exchange rates for economic info
+$('#currencies').change(() => {
+    const currency = $('#currencies option:selected').text();
+    const value = $('#currencies').val();
+    const base = $('#currencies option:selected').attr('base');
+    $('#currencyResult').html(
+        `<h3>1 ${base} = ${value} ${currency}`
+    );
+});
+
+const getWeatherInfo = () => {
+    $('#extraInfo').css('display', 'block');
+    $('#extraInfo').html(
+        `
+            <h1>Weather Information</h1>
+            <hr />
+        `
+    )
+};
+
 // This will update the map to display the relevant features once a new country is selected
 $('#countries').change(() => {    
     removeBorder();
+    $('#extraInfo').css('display', 'none');
     setBorder('getCountryBorders', $('#countries').val());
     getCountryInfo($('#countries').val());
     centerMap($('#countries').val());
