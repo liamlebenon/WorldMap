@@ -27,10 +27,9 @@ const centerMap = (countryCode) => {
             const info = getCountryInfo(countryCode);
             map.setView([coords.lat, coords.lng], 5);
             marker.setLatLng(coords);
-            const rate = getExchangeRate(info[0].currency.code);
             $('#countryInfo').html(
                 `<div class='country-info'>
-                    <h1>${info[0].name}</h1>
+                    <h1>${info[0].name}</h1><img class='flag' src='https://countryflagsapi.com/png/${countryCode}'/>
                     <hr />
                     <ul>
                         <li><b>Capital City</b>: ${info[0].capital}</li>
@@ -118,6 +117,7 @@ $('#document').ready(() => {
                 var at = $(a).text(), bt = $(b).text();
                 return (at > bt)?1:((at < bt)?-1:0);
             }));  
+            $('#countries').prepend('<option disabled selected>Select a country...</option>');
         }
     });
 });
@@ -157,20 +157,6 @@ const getExchangeRate = (currency) => {
 }
 
 // Find locations of the top tourist areas in the country
-const getAreasOfInterest = (countryName) => {
-    $.ajax({
-        url: 'libs/php/getAreasOfInterest.php',
-        type: 'POST',
-        dataType: 'json',
-        data: {
-            apiKey: '5ae2e3f221c38a28845f05b636450e0f3469078a46d900f87c76e8b6',
-            countryName: countryName.replaceAll(' ', '')
-        },
-        success: (result) => {
-            console.log(result);
-        }
-    });
-};
 
 // Helper function to remove borders
 const removeBorder = () => {

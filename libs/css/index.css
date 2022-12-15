@@ -4,14 +4,17 @@ body {
 
 h1 {
     display: inline-block;
+    font-size: xx-large;
 }
 
 .navbar {
     padding: 0.5rem;
-    height: 4rem;
+    height: 4.5rem;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     justify-content: center;
+    border-bottom: 1px solid black;
+    background-color: rgb(233, 220, 150);
 }
 
 .navbar select {
@@ -31,6 +34,12 @@ h1 {
 #mapid {
     height: 100vh;
     z-index: 1;
+}
+
+#countryInfo img {
+    width: 80px;
+    float: right;
+    padding: 10px;
 }
 
 #countryInfo {
