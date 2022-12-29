@@ -19,24 +19,39 @@
             <h1>Map of the World</h1>
             <select id="countries">
             </select>
-        </div>            
+        </div>      
+
         <div id="countryInfo">
             <h1>Loading data...</h1>
         </div>
         
-        <div id="extraInfo" style="display: none">
-            <h1>Economic Info</h1>
-            <hr />
-            <h2>Currenct Exchange Rates:</h2>
-            <p>Select a currency:             
-                <select id="currencies">
-                </select>
-            </p>
-            <div id="currencyResult">
 
+        <div id="extraInfo" style="display: none">
+
+            <div id="economicInfo" style="display: none">
+                <h1>Economic Info</h1>
+                <hr />
+                <h2>Currenct Exchange Rates:</h2>
+                <p>Select a currency:             
+                    <select id="currencies">
+                    </select>
+                </p>
+                <div id="currencyResult">
+                </div>
+            </div>
+
+
+            <div id="weatherInfo" style="display: none">
+                <div id="weatherTitle"><h1>Current Weather</h1><img id="weatherIcon"/></div>
+                <hr />
+                <div id="weatherInfoList">
+
+                </div>
             </div>
 
         </div>
+
+
 
         <div id="mapid"></div>
         </div>

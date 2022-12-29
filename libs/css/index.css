@@ -80,4 +80,8 @@ h1 {
     border-radius: 10px;   
 }
 
+#weatherTitle img {
+    float: right;
+}
+
 

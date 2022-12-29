@@ -29,7 +29,7 @@ const centerMap = (countryCode) => {
             marker.setLatLng(coords);
             $('#countryInfo').html(
                 `<div class='country-info'>
-                    <h1>${info[0].name}</h1><img class='flag' src='https://countryflagsapi.com/png/${countryCode}'/>
+                    <h1>${info[0].name}</h1><img class='flag' crossorigin src='https://countryflagsapi.com/png/${countryCode}'/>
                     <hr />
                     <ul>
                         <li><b>Capital City</b>: ${info[0].capital}</li>
@@ -40,7 +40,7 @@ const centerMap = (countryCode) => {
                     </ul>
                     <div id='moreInfo'>
                         <button id='financial' onClick='displayEconomicInfo("${info[0].currency.code}")'>Economic Info</button>
-                        <button id='weather' onClick='getWeatherInfo()'>Weather Info</button>
+                        <button id='weather' onClick='displayWeatherInfo("${info[0].capital}")'>Weather Info</button>
                     </div>
                 </div>`
             );
@@ -169,10 +169,11 @@ const getEconomicInfo = (currencyCode) => {
 }
 
 const displayEconomicInfo = (currencyCode) => {
-    console.log('This is executing');
-    $('#currencies').html('');
+    $('#weatherInfo').css('display', 'none');
     $('#currencyResult').html('')
-    const data = getEconomicInfo(currencyCode);
+    const data = getEconomicInfo(currencyCode);  
+    $('#extraInfo').css('display', 'block');  
+    $('#economicInfo').css('display', 'block');
     $('#currencies').html(
         Object.keys(data.rates).forEach((key) => {
             $('<option>', {
@@ -183,7 +184,7 @@ const displayEconomicInfo = (currencyCode) => {
         })
     )
 
-    $('#extraInfo').css('display', 'block');
+
 };
 
 // Update exchange rates for economic info
@@ -196,12 +197,39 @@ $('#currencies').change(() => {
     );
 });
 
-const getWeatherInfo = () => {
+const getWeatherInfo = (cityName) => {
+    let data = '';
+    $.ajax({
+        url: 'libs/php/getWeather.php',
+        type: 'POST',
+        async: false,
+        dataType: 'json',
+        data: {
+            apiKey: '28928681a7104281b32131558222912',
+            cityName: cityName
+        },
+        success: (result) => {
+            data = result;
+            console.log(data.current)
+        }
+    });
+    return data;
+};
+
+const displayWeatherInfo = (cityName) => {
+    const data = getWeatherInfo(cityName);
     $('#extraInfo').css('display', 'block');
-    $('#extraInfo').html(
+    $('#economicInfo').css('display', 'none');
+    $('#weatherInfo').css('display', 'block');
+    $('#weatherIcon').attr('src', `${data.current.condition.icon}`);
+    $('#weatherInfoList').html(
         `
-            <h1>Weather Information</h1>
-            <hr />
+            <ul>
+                <li><b>Temperature</b>: ${data.current.temp_c}&#176;C</li>
+                <li><b>Condition</b>: ${data.current.condition.text} </li>
+                <li><b>UV Index</b>: ${data.current.uv}</li>
+                <li><b>Wind Speed</b>: ${data.current.wind_kph} km/h ${data.current.wind_dir}</li>
+            </ul>
         `
     )
 };
