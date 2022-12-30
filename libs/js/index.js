@@ -29,7 +29,7 @@ const centerMap = (countryCode) => {
             marker.setLatLng(coords);
             $('#countryInfo').html(
                 `<div class='country-info'>
-                    <h1>${info[0].name}</h1><img class='flag' crossorigin src='https://countryflagsapi.com/png/${countryCode}'/>
+                    <h1 id='countryName'>${info[0].name}</h1><img class='flag' crossorigin src='https://countryflagsapi.com/png/${countryCode}'/>
                     <hr />
                     <ul>
                         <li><b>Capital City</b>: ${info[0].capital}</li>
@@ -170,8 +170,9 @@ const getEconomicInfo = (currencyCode) => {
 
 const displayEconomicInfo = (currencyCode) => {
     $('#weatherInfo').css('display', 'none');
-    $('#currencyResult').html('')
-    const data = getEconomicInfo(currencyCode);  
+    $('#currencyResult').html('');
+    $('#currencies').html('');
+    const data = getEconomicInfo(currencyCode);
     $('#extraInfo').css('display', 'block');  
     $('#economicInfo').css('display', 'block');
     $('#currencies').html(
@@ -183,8 +184,6 @@ const displayEconomicInfo = (currencyCode) => {
             }).appendTo('#currencies');
         })
     )
-
-
 };
 
 // Update exchange rates for economic info
@@ -210,7 +209,6 @@ const getWeatherInfo = (cityName) => {
         },
         success: (result) => {
             data = result;
-            console.log(data.current)
         }
     });
     return data;
@@ -223,7 +221,7 @@ const displayWeatherInfo = (cityName) => {
     $('#weatherInfo').css('display', 'block');
     $('#weatherIcon').attr('src', `${data.current.condition.icon}`);
     $('#weatherInfoList').html(
-        `
+        `   <h2>${cityName}</h2>
             <ul>
                 <li><b>Temperature</b>: ${data.current.temp_c}&#176;C</li>
                 <li><b>Condition</b>: ${data.current.condition.text} </li>
