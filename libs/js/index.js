@@ -23,7 +23,15 @@ const centerMap = (countryCode) => {
             apiKey: 'e611932662994cc89b79eb86a317d38e'
         },
         success: (result) => {
-            const coords = result.results[0].geometry;
+            let coords;
+            const data = result.results;
+            // Loop through array to ensure that the latitude is returned for the correct country
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].components['ISO_3166-1_alpha-2'] === countryCode) {
+                    coords = data[i].geometry;
+                    break;
+                }
+            };
             const info = getCountryInfo(countryCode);
             map.setView([coords.lat, coords.lng], 5);
             marker.setLatLng(coords);
@@ -117,7 +125,7 @@ $('#document').ready(() => {
                     text: country.properties.name
                 }).appendTo('#countries');
             });
-            // Sort alphabetically
+            // Sort the select list alphabetically
             $("#countries").append($("#countries option").remove().sort(function(a, b) {
                 var at = $(a).text(), bt = $(b).text();
                 return (at > bt)?1:((at < bt)?-1:0);
@@ -168,14 +176,17 @@ const getEconomicInfo = (currencyCode) => {
     return data;
 }
 
+// Function to display financial information for the country
 const displayEconomicInfo = (currencyCode) => {
     $('#weatherInfo').css('display', 'none');
     $('#currencyResult').html('');
+    // Clears the block to display new info
     $('#currencies').html('');
     const data = getEconomicInfo(currencyCode);
     $('#extraInfo').css('display', 'block');  
     $('#economicInfo').css('display', 'block');
     $('#currencies').html(
+        // Populates the select with currencies for conversion
         Object.keys(data.rates).forEach((key) => {
             $('<option>', {
                 value: data.rates[key],
@@ -196,6 +207,7 @@ $('#currencies').change(() => {
     );
 });
 
+// Function to receive the weather information
 const getWeatherInfo = (cityName) => {
     let data = '';
     $.ajax({
@@ -214,6 +226,7 @@ const getWeatherInfo = (cityName) => {
     return data;
 };
 
+// Function to display information for the weather
 const displayWeatherInfo = (cityName) => {
     const data = getWeatherInfo(cityName);
     $('#extraInfo').css('display', 'block');
