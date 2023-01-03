@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    min-width: 624px;
 }
 
 h1 {
@@ -92,4 +93,7 @@ h1 {
     float: right;
 }
 
-
+#closeEconomic, #closeWeather{
+    position: absolute;
+    bottom: 20px;
+}

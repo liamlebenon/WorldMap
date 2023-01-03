@@ -253,3 +253,8 @@ $('#countries').change(() => {
     getCountryInfo($('#countries').val());
     centerMap($('#countries').val());
 });
+
+// Button functions to close extra info tabs
+const closeInfo = () => {
+    $('#extraInfo').css('display', 'none');
+}
