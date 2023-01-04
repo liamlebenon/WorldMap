@@ -10,6 +10,8 @@ const tiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/
     noWrap: true
 });
 
+
+
 tiles.addTo(map);
 
 // Func for getting basic info for the country as well as get the Lat/Lng to center the map when the user selects a country
@@ -157,6 +159,15 @@ const removeBorder = () => {
     map.removeLayer(border);
 }
 
+// Create leaflet buttons
+const htmlStar = L.map('html-star', {scrollWheelZoom: false}).setView([37.8, -96], 4);
+L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(htmlStar);
+
+L.easyButton( '<span class="star">&starf;</span>', function(){
+  alert('you just clicked the html entity \&starf;');
+}).addTo(htmlStar);
+
+
 // Handle button clicks for extra information
 const getEconomicInfo = (currencyCode) => {
     let data = '';
@@ -258,3 +269,6 @@ $('#countries').change(() => {
 const closeInfo = () => {
     $('#extraInfo').css('display', 'none');
 }
+
+$('#closeEconomic').click(closeInfo());
+$('#closeWeather').click(closeInfo());
