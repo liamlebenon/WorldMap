@@ -57,6 +57,7 @@ h1 {
 }
 
 #countryInfo {
+    display: none;
     width: 400px;
     height: 280px;
     border: 2.5px solid black;

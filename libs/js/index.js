@@ -9,10 +9,44 @@ const tiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/
 	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
     noWrap: true
 });
-
-
-
 tiles.addTo(map);
+
+let extraInfoIsOpen = false;
+
+// Main country info card
+L.easyButton('fa-globe', function(){
+    $('#countryInfo').toggle(200);
+}).addTo(map);
+
+// Extra info for economics card
+L.easyButton('fa-globe', function(){  
+    if (!extraInfoIsOpen) {
+        $('#extraInfo').show();
+        displayEconomicInfo(countryInfo.currencyCode);
+        extraInfoIsOpen = true;
+    } else {
+        displayEconomicInfo(countryInfo.currencyCode);
+    }
+}).addTo(map);
+
+L.easyButton('fa-globe', function(){  
+    if (!extraInfoIsOpen) {
+        $('#extraInfo').show();
+        displayWeatherInfo(countryInfo.capital);
+        extraInfoIsOpen = true;
+    } else {
+        displayWeatherInfo(countryInfo.capital);
+    }
+    
+}).addTo(map);
+
+
+let countryInfo = {
+    name: '',
+    capital: '',
+    currencyCode: '',
+    countryCode: ''
+};
 
 // Func for getting basic info for the country as well as get the Lat/Lng to center the map when the user selects a country
 const centerMap = (countryCode) => {
@@ -37,6 +71,13 @@ const centerMap = (countryCode) => {
             const info = getCountryInfo(countryCode);
             map.setView([coords.lat, coords.lng], 5);
             marker.setLatLng(coords);
+
+            countryInfo.name = info[0].name;
+            countryInfo.currencyCode = info[0].currency.code;
+            countryInfo.countryCode = countryCode;
+            countryInfo.capital = info[0].capital;
+
+            console.log(countryInfo)
             $('#countryInfo').html(
                 `<div class='country-info'>
                     <h1 id='countryName'>${info[0].name}</h1><img class='flag' crossorigin src='https://countryflagsapi.com/png/${countryCode}'/>
@@ -48,10 +89,6 @@ const centerMap = (countryCode) => {
                         <li><b>Density</b>: ${info[0].pop_density} /km&#178;</li>
                         <li><b>Currency</b>: ${info[0].currency.code}</li>
                     </ul>
-                    <div id='moreInfo'>
-                        <button id='financial' onClick='displayEconomicInfo("${info[0].currency.code}")'>Economic Info</button>
-                        <button id='weather' onClick='displayWeatherInfo("${info[0].capital}")'>Weather Info</button>
-                    </div>
                 </div>`
             );
             marker.openPopup();
@@ -159,14 +196,6 @@ const removeBorder = () => {
     map.removeLayer(border);
 }
 
-// Create leaflet buttons
-const htmlStar = L.map('html-star', {scrollWheelZoom: false}).setView([37.8, -96], 4);
-L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(htmlStar);
-
-L.easyButton( '<span class="star">&starf;</span>', function(){
-  alert('you just clicked the html entity \&starf;');
-}).addTo(htmlStar);
-
 
 // Handle button clicks for extra information
 const getEconomicInfo = (currencyCode) => {
@@ -189,12 +218,13 @@ const getEconomicInfo = (currencyCode) => {
 
 // Function to display financial information for the country
 const displayEconomicInfo = (currencyCode) => {
-    $('#weatherInfo').css('display', 'none');
     $('#currencyResult').html('');
+    $('#weatherInfo').css('display', 'none');
     // Clears the block to display new info
     $('#currencies').html('');
     const data = getEconomicInfo(currencyCode);
-    $('#extraInfo').css('display', 'block');  
+    console.log('This is running');
+    console.log(data);
     $('#economicInfo').css('display', 'block');
     $('#currencies').html(
         // Populates the select with currencies for conversion
@@ -207,6 +237,26 @@ const displayEconomicInfo = (currencyCode) => {
         })
     )
 };
+
+// const displayEconomicInfo = (currencyCode) => {
+//     $('#weatherInfo').css('display', 'none');
+//     $('#currencyResult').html('');
+//     // Clears the block to display new info
+//     $('#currencies').html('');
+//     const data = getEconomicInfo(currencyCode);
+//     $('#extraInfo').css('display', 'block');  
+//     $('#economicInfo').css('display', 'block');
+//     $('#currencies').html(
+//         // Populates the select with currencies for conversion
+//         Object.keys(data.rates).forEach((key) => {
+//             $('<option>', {
+//                 value: data.rates[key],
+//                 text: key,
+//                 base: currencyCode
+//             }).appendTo('#currencies');
+//         })
+//     )
+// };
 
 // Update exchange rates for economic info
 $('#currencies').change(() => {
@@ -258,6 +308,7 @@ const displayWeatherInfo = (cityName) => {
 
 // This will update the map to display the relevant features once a new country is selected
 $('#countries').change(() => {    
+    extraInfoIsOpen = false;
     removeBorder();
     $('#extraInfo').css('display', 'none');
     setBorder('getCountryBorders', $('#countries').val());
