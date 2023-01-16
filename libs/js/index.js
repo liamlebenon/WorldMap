@@ -38,7 +38,7 @@ L.easyButton('<img src="https://cdn-icons-png.flaticon.com/512/218/218706.png" w
 }).addTo(map);
 
 // Extra info for covid card
-L.easyButton('<img src="https://cdn-icons-png.flaticon.com/512/218/218706.png" width="18px">', function() {   
+L.easyButton('<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Coronavirus_icon.svg/240px-Coronavirus_icon.svg.png" width="22px">', function() {   
     $('#extraInfo').fadeIn(300);
     displayCovidInfo(countryInfo.name);
 }).addTo(map);
@@ -288,12 +288,74 @@ const displayWeatherInfo = (cityName) => {
 };
 
 const displayCovidInfo = (country) => {
+    // Change country names for few exceptions:
+    if (country === 'United States') {
+        country = 'US';
+    }
+    if (country === 'Russian Federation') {
+        country = 'Russia'
+    }
     const data = getCovidInfo(country);
     $('#extraInfo').css('display', 'block');
     $('#economicInfo').css('display', 'none');
     $('#weatherInfo').css('display', 'none');
     $('#covidInfo').css('display', 'block');
+    $('#provinces').html('');
+    $('#provinceResult').html('');
+
+    const provinceData = {};
+    data.data.covid19Stats.forEach(province => {
+        console.log(province.province)
+        if (province.province === null) {
+            provinceData[province.country] = {
+                confirmed: province.confirmed,
+                deaths: province.deaths,
+                lastUpdate: province.lastUpdate
+            }
+        } else {
+            provinceData[province.province] = {
+                confirmed: province.confirmed,
+                deaths: province.deaths,
+                lastUpdate: province.lastUpdate
+        }
+        }
+
+    });
+
+    $('#provinces').html(
+        // Populates the select with currencies for conversion
+        Object.keys(provinceData).forEach((key) => {
+                $('<option>', {
+                    value: key,
+                    text: key,
+                    confirmed: provinceData[key].confirmed,
+                    deaths: provinceData[key].deaths,
+                    lastUpdate: provinceData[key].lastUpdate
+                }).appendTo('#provinces');
+        }),
+        $('#provinces').prepend('<option disabled selected>Select a province...</option>')
+    )
+    console.log(provinceData);
 }
+
+$('#provinces').change(() => {
+    const selected = $('#provinces option:selected');
+    const data = {
+        confirmed: Number(selected.attr('confirmed')).toLocaleString('en-US'),
+        deaths: Number(selected.attr('deaths')).toLocaleString('en-US'),
+        lastUpdated: selected.attr('lastupdate')
+    };
+
+    $('#provinceResult').html(
+        `   <ul>
+                <li><b>Total Confirmed</b>: ${data.confirmed}</li>
+                <li><b>Total Deaths</b>: ${data.deaths}</li>
+                <li><b>Last Updated</b>: ${data.lastUpdated}</li>
+            </ul>
+        
+        `
+    );
+});
 
 //Function to receive COVID information
 const getCovidInfo = (country) => {
