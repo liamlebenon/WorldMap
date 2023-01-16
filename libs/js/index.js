@@ -12,7 +12,6 @@ const tiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/
 tiles.addTo(map);
 
 // Close extra info button
-
 const closeInfoBox = () => {
     console.log('Clicked')
     $('#extraInfo').fadeOut(300);
@@ -43,7 +42,7 @@ L.easyButton('<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c
     displayCovidInfo(countryInfo.name);
 }).addTo(map);
 
-
+// The country store to contain all country data for easier use
 let countryInfo = {
     name: '',
     capital: '',
@@ -74,6 +73,7 @@ const centerMap = (countryCode) => {
             map.setView([coords.lat, coords.lng], 5);
             marker.setLatLng(coords);
 
+            // Adds all the basic info to the country store object (countryInfo)
             countryInfo.name = info[0].name;
             countryInfo.currencyCode = info[0].currency.code;
             countryInfo.countryCode = countryCode;
@@ -296,6 +296,7 @@ const displayCovidInfo = (country) => {
         country = 'Russia'
     }
     const data = getCovidInfo(country);
+    // Clears the card for the new covid information to be displayed
     $('#extraInfo').css('display', 'block');
     $('#economicInfo').css('display', 'none');
     $('#weatherInfo').css('display', 'none');
@@ -304,6 +305,7 @@ const displayCovidInfo = (country) => {
     $('#provinceResult').html('');
 
     const provinceData = {};
+    // Taking the returned data and assigning it to an object containing all data for provinces with the province as the key and another object as the value
     data.data.covid19Stats.forEach(province => {
         console.log(province.province)
         if (province.province === null) {
@@ -338,6 +340,7 @@ const displayCovidInfo = (country) => {
     console.log(provinceData);
 }
 
+// Update the Covid Information when there is a change to the province selector
 $('#provinces').change(() => {
     const selected = $('#provinces option:selected');
     const data = {
@@ -345,7 +348,6 @@ $('#provinces').change(() => {
         deaths: Number(selected.attr('deaths')).toLocaleString('en-US'),
         lastUpdated: selected.attr('lastupdate')
     };
-
     $('#provinceResult').html(
         `   <ul>
                 <li><b>Total Confirmed</b>: ${data.confirmed}</li>
