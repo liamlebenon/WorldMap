@@ -95,7 +95,7 @@ h1 {
     float: right;
 }
 
-#closeEconomic, #closeWeather{
+.closeExtraInfo button {
     position: absolute;
     bottom: 20px;
 }

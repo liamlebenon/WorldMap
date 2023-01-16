@@ -11,33 +11,30 @@ const tiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/
 });
 tiles.addTo(map);
 
-let extraInfoIsOpen = false;
+// Close extra info button
+
+const closeInfoBox = () => {
+    console.log('Clicked')
+    $('#extraInfo').fadeOut(300);
+};
+
+$('.closeExtraInfo').click(closeInfoBox);
 
 // Main country info card
-L.easyButton('fa-globe', function(){
+L.easyButton('<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Globe_icon.svg/2048px-Globe_icon.svg.png" width="16px">', function(){
     $('#countryInfo').toggle(200);
 }).addTo(map);
 
 // Extra info for economics card
-L.easyButton('fa-globe', function(){  
-    if (!extraInfoIsOpen) {
-        $('#extraInfo').show();
-        displayEconomicInfo(countryInfo.currencyCode);
-        extraInfoIsOpen = true;
-    } else {
-        displayEconomicInfo(countryInfo.currencyCode);
-    }
+L.easyButton('&dollar;', function(){  
+    $('#extraInfo').fadeIn(300);
+    displayEconomicInfo(countryInfo.currencyCode);
 }).addTo(map);
 
-L.easyButton('fa-globe', function(){  
-    if (!extraInfoIsOpen) {
-        $('#extraInfo').show();
-        displayWeatherInfo(countryInfo.capital);
-        extraInfoIsOpen = true;
-    } else {
-        displayWeatherInfo(countryInfo.capital);
-    }
-    
+// Extra info for weather card    
+L.easyButton('<img src="https://cdn-icons-png.flaticon.com/512/218/218706.png" width="18px">', function() {   
+    $('#extraInfo').fadeIn(300);
+    displayWeatherInfo(countryInfo.capital);
 }).addTo(map);
 
 
@@ -45,7 +42,7 @@ let countryInfo = {
     name: '',
     capital: '',
     currencyCode: '',
-    countryCode: ''
+    countryCode: '',
 };
 
 // Func for getting basic info for the country as well as get the Lat/Lng to center the map when the user selects a country
@@ -238,26 +235,6 @@ const displayEconomicInfo = (currencyCode) => {
     )
 };
 
-// const displayEconomicInfo = (currencyCode) => {
-//     $('#weatherInfo').css('display', 'none');
-//     $('#currencyResult').html('');
-//     // Clears the block to display new info
-//     $('#currencies').html('');
-//     const data = getEconomicInfo(currencyCode);
-//     $('#extraInfo').css('display', 'block');  
-//     $('#economicInfo').css('display', 'block');
-//     $('#currencies').html(
-//         // Populates the select with currencies for conversion
-//         Object.keys(data.rates).forEach((key) => {
-//             $('<option>', {
-//                 value: data.rates[key],
-//                 text: key,
-//                 base: currencyCode
-//             }).appendTo('#currencies');
-//         })
-//     )
-// };
-
 // Update exchange rates for economic info
 $('#currencies').change(() => {
     const currency = $('#currencies option:selected').text();
@@ -315,11 +292,3 @@ $('#countries').change(() => {
     getCountryInfo($('#countries').val());
     centerMap($('#countries').val());
 });
-
-// Button functions to close extra info tabs
-const closeInfo = () => {
-    $('#extraInfo').css('display', 'none');
-}
-
-$('#closeEconomic').click(closeInfo());
-$('#closeWeather').click(closeInfo());
