@@ -3,7 +3,7 @@
 $url = 'https://api.apilayer.com/exchangerates_data/latest?base=' . $_REQUEST['currencyCode'];  
 
 $headers = [
-    'apikey: ' . $_REQUEST['apiKey'],
+    'apikey: 34NzIC9tuEyonUwU00QpIlmsL7AnS1ow',
     'Content-Type: application/json'
 ];
 $curl = curl_init($url);

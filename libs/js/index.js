@@ -37,6 +37,12 @@ L.easyButton('<img src="https://cdn-icons-png.flaticon.com/512/218/218706.png" w
     displayWeatherInfo(countryInfo.capital);
 }).addTo(map);
 
+// Extra info for covid card
+L.easyButton('<img src="https://cdn-icons-png.flaticon.com/512/218/218706.png" width="18px">', function() {   
+    $('#extraInfo').fadeIn(300);
+    displayCovidInfo(countryInfo.name);
+}).addTo(map);
+
 
 let countryInfo = {
     name: '',
@@ -53,7 +59,6 @@ const centerMap = (countryCode) => {
         type: 'GET',
         data: {
             iso_a2: countryCode,
-            apiKey: 'e611932662994cc89b79eb86a317d38e'
         },
         success: (result) => {
             let coords;
@@ -132,7 +137,6 @@ const getCountryInfo = (countryCode) => {
         type: 'GET',
         data: {
             iso_a2: countryCode,
-            apiKey: 'JU7S+Xei/S8WLbkghgdl/g==0UEhtMLxyRV2bwOR'
         },
         success: (result) => {
             data = result;
@@ -203,7 +207,6 @@ const getEconomicInfo = (currencyCode) => {
         async: false,
         dataType: 'json',
         data: {
-            apiKey: '34NzIC9tuEyonUwU00QpIlmsL7AnS1ow',
             currencyCode: currencyCode
         },
         success: (result) => {
@@ -217,6 +220,7 @@ const getEconomicInfo = (currencyCode) => {
 const displayEconomicInfo = (currencyCode) => {
     $('#currencyResult').html('');
     $('#weatherInfo').css('display', 'none');
+    $('#covidInfo').css('display', 'none');
     // Clears the block to display new info
     $('#currencies').html('');
     const data = getEconomicInfo(currencyCode);
@@ -254,7 +258,6 @@ const getWeatherInfo = (cityName) => {
         async: false,
         dataType: 'json',
         data: {
-            apiKey: '28928681a7104281b32131558222912',
             cityName: cityName
         },
         success: (result) => {
@@ -269,6 +272,7 @@ const displayWeatherInfo = (cityName) => {
     const data = getWeatherInfo(cityName);
     $('#extraInfo').css('display', 'block');
     $('#economicInfo').css('display', 'none');
+    $('#covidInfo').css('display', 'none');
     $('#weatherInfo').css('display', 'block');
     $('#weatherIcon').attr('src', `${data.current.condition.icon}`);
     $('#weatherInfoList').html(
@@ -282,6 +286,34 @@ const displayWeatherInfo = (cityName) => {
         `
     )
 };
+
+const displayCovidInfo = (country) => {
+    const data = getCovidInfo(country);
+    $('#extraInfo').css('display', 'block');
+    $('#economicInfo').css('display', 'none');
+    $('#weatherInfo').css('display', 'none');
+    $('#covidInfo').css('display', 'block');
+}
+
+//Function to receive COVID information
+const getCovidInfo = (country) => {
+    let data = '';
+    $.ajax({
+        url: 'libs/php/getCovid.php',
+        type: 'POST',
+        async: false,
+        dataType: 'json',
+        data: {
+            country: country
+        },
+        success: (result) => {
+            data = result;
+            console.log(data);
+        }
+    });
+    return data;
+};
+
 
 // This will update the map to display the relevant features once a new country is selected
 $('#countries').change(() => {    

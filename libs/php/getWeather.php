@@ -1,9 +1,9 @@
 <?php
 
-$url = 'http://api.weatherapi.com/v1/current.json?key=' . $_REQUEST['apiKey'] . '&q=' . $_REQUEST['cityName'];  
+$url = 'http://api.weatherapi.com/v1/current.json?key=28928681a7104281b32131558222912' . '&q=' . $_REQUEST['cityName'];  
 
 $headers = [
-    'apikey: ' . $_REQUEST['apiKey'],
+    'apikey:  28928681a7104281b32131558222912',
     'Content-Type: application/json'
 ];
 $curl = curl_init($url);

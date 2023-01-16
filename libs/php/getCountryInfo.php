@@ -3,7 +3,7 @@
     $url = 'https://api.api-ninjas.com/v1/country?name=' . $_REQUEST['iso_a2'];  
 
     $headers = [
-        'X-Api-Key: ' . $_REQUEST['apiKey'],
+        'X-Api-Key: JU7S+Xei/S8WLbkghgdl/g==0UEhtMLxyRV2bwOR',
         'Content-Type: application/json'
     ];
     $curl = curl_init($url);

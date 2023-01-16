@@ -1,6 +1,6 @@
 <?php
 
-    $url = 'https://api.opencagedata.com/geocode/v1/json?key=' . $_REQUEST['apiKey'] . '&q=' . $_REQUEST['iso_a2'] .'&pretty=1';
+    $url = 'https://api.opencagedata.com/geocode/v1/json?key=e611932662994cc89b79eb86a317d38e' . '&q=' . $_REQUEST['iso_a2'] .'&pretty=1';
 
     $curl = curl_init($url);
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
