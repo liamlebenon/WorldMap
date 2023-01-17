@@ -42,12 +42,40 @@ L.easyButton('<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c
     displayCovidInfo(countryInfo.name);
 }).addTo(map);
 
+let markers;
+// Button for local sites
+L.easyButton('<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Coronavirus_icon.svg/240px-Coronavirus_icon.svg.png" width="22px">', function() {  
+    markers = L.markerClusterGroup();
+    markers.removeLayers(marker);
+    const data = getAreasOfInterest(countryInfo.capitalCoords.latitude, countryInfo.capitalCoords.longitude);
+    const areasOfInterest = [];
+    data.features.forEach(poi => {
+        if (poi.properties.name !== '') {
+            areasOfInterest.push({
+                coords: poi.geometry.coordinates,
+                name: poi.properties.name,
+                rate: poi.properties.rate
+            });
+        }
+    });
+    console.log(areasOfInterest)
+
+	for (let i = 0; i < areasOfInterest.length; i++) {
+		let aoi = areasOfInterest[i];
+		let marker = L.marker(new L.LatLng(aoi.coords[1], aoi.coords[0]), { title: aoi.name });
+		marker.bindPopup(aoi.name);
+		markers.addLayer(marker);
+	}
+	map.addLayer(markers);
+}).addTo(map);
+
 // The country store to contain all country data for easier use
 let countryInfo = {
     name: '',
     capital: '',
     currencyCode: '',
     countryCode: '',
+    capitalCoords: {}
 };
 
 // Func for getting basic info for the country as well as get the Lat/Lng to center the map when the user selects a country
@@ -73,11 +101,18 @@ const centerMap = (countryCode) => {
             map.setView([coords.lat, coords.lng], 5);
             marker.setLatLng(coords);
 
+            // Get coords for the capital city
+            const capitalCoords = getCoordsForCapital(info[0].capital);
+
             // Adds all the basic info to the country store object (countryInfo)
             countryInfo.name = info[0].name;
             countryInfo.currencyCode = info[0].currency.code;
             countryInfo.countryCode = countryCode;
             countryInfo.capital = info[0].capital;
+            countryInfo.capitalCoords = {
+                latitude: capitalCoords[0].lat,
+                longitude: capitalCoords[0].lon
+            };
 
             console.log(countryInfo)
             $('#countryInfo').html(
@@ -97,6 +132,8 @@ const centerMap = (countryCode) => {
         }
     })
 };
+
+console.log(countryInfo)
 
 let marker;
 
@@ -338,6 +375,8 @@ const displayCovidInfo = (country) => {
         $('#provinces').prepend('<option disabled selected>Select a province...</option>')
     )
     console.log(provinceData);
+    console.log(countryInfo.capitalCoords.latitude);
+    getAreasOfInterest(countryInfo.capitalCoords.latitude, countryInfo.capitalCoords.longitude);
 }
 
 // Update the Covid Information when there is a change to the province selector
@@ -378,7 +417,6 @@ const getCovidInfo = (country) => {
     return data;
 };
 
-
 // This will update the map to display the relevant features once a new country is selected
 $('#countries').change(() => {    
     extraInfoIsOpen = false;
@@ -388,3 +426,40 @@ $('#countries').change(() => {
     getCountryInfo($('#countries').val());
     centerMap($('#countries').val());
 });
+
+const getCoordsForCapital = (capital) => {
+    let data = '';
+    $.ajax({
+        url: 'libs/php/getCoordsForCapital.php',
+        type: 'POST',
+        async: false,
+        dataType: 'json',
+        data: {
+            capital: capital
+        },
+        success: (result) => {
+            data = result;
+        }
+    });
+    return data;
+};
+
+const getAreasOfInterest = (lat, long) => {
+    let data = '';
+    $.ajax({
+        url: 'libs/php/getAreasOfInterest.php',
+        type: 'POST',
+        async: false,
+        dataType: 'json',
+        data: {
+            latitude: lat,
+            longitude: long
+        },
+        success: (result) => {
+            data = result;
+            console.log(data)
+        }
+    });
+    return data;
+};
+
