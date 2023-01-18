@@ -44,7 +44,7 @@ L.easyButton('<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c
 
 let markers;
 // Button for local sites
-L.easyButton('<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Coronavirus_icon.svg/240px-Coronavirus_icon.svg.png" width="22px">', function() {  
+L.easyButton('<img src="https://t4.ftcdn.net/jpg/03/44/49/57/360_F_344495772_96iJVDMuLQBdCrv7kiy3mXUa5FoxB6aA.jpg" width="24px">', function() {  
     markers = L.markerClusterGroup();
     markers.removeLayers(marker);
     const data = getAreasOfInterest(countryInfo.capitalCoords.latitude, countryInfo.capitalCoords.longitude);
