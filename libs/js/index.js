@@ -24,6 +24,12 @@ L.easyButton('<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c
     $('#countryInfo').toggle(200);
 }).addTo(map);
 
+L.easyButton('<img src="https://cdn-icons-png.flaticon.com/512/152/152814.png" width="16px">', function(){
+    const formattedCountry = countryInfo.name.replace(' ', '+');
+    $('#extraInfo').fadeIn(300);
+    displayWikipediaInfo(formattedCountry);
+}).addTo(map);
+
 // Extra info for economics card
 L.easyButton('&dollar;', function(){  
     $('#extraInfo').fadeIn(300);
@@ -116,6 +122,7 @@ const centerMap = (countryCode) => {
                 latitude: capitalCoords[0].lat,
                 longitude: capitalCoords[0].lon
             };
+            console.log(countryInfo.capital)
 
             console.log(countryInfo)
             $('#countryInfo').html(
@@ -131,6 +138,9 @@ const centerMap = (countryCode) => {
                     </ul>
                 </div>`
             );
+            $('#countryInfo').css('display: block');
+            const formattedCountry = countryInfo.name.replace(' ', '+');
+            displayWikipediaInfo(formattedCountry);
             marker.openPopup();
         }
     })
@@ -261,6 +271,7 @@ const displayEconomicInfo = (currencyCode) => {
     $('#currencyResult').html('');
     $('#weatherInfo').css('display', 'none');
     $('#covidInfo').css('display', 'none');
+    $('#wikipediaInfo').css('display', 'none');
     // Clears the block to display new info
     $('#currencies').html('');
     const data = getEconomicInfo(currencyCode);
@@ -312,7 +323,8 @@ const displayWeatherInfo = (cityName) => {
     const data = getWeatherInfo(cityName);
     $('#extraInfo').css('display', 'block');
     $('#economicInfo').css('display', 'none');
-    $('#covidInfo').css('display', 'none');
+    $('#covidInfo').css('display', 'none');    
+    $('#wikipediaInfo').css('display', 'none');
     $('#weatherInfo').css('display', 'block');
     $('#weatherIcon').attr('src', `${data.current.condition.icon}`);
     $('#weatherInfoList').html(
@@ -340,6 +352,7 @@ const displayCovidInfo = (country) => {
     $('#extraInfo').css('display', 'block');
     $('#economicInfo').css('display', 'none');
     $('#weatherInfo').css('display', 'none');
+    $('#wikipediaInfo').css('display', 'none');
     $('#covidInfo').css('display', 'block');
     $('#provinces').html('');
     $('#provinceResult').html('');
@@ -464,4 +477,38 @@ const getAreasOfInterest = (lat, long) => {
         }
     });
     return data;
+};
+
+const getWikipedia = (countryName) => {
+    let data = '';
+    $.ajax({
+        url: 'libs/php/getWikipedia.php',
+        type: 'POST',
+        async: false,
+        dataType: 'json',
+        data: {
+            countryName: countryName
+        },
+        success: (result) => {
+            data = result;
+            console.log(data);
+        }
+    });
+    return data;
+}
+
+const displayWikipediaInfo = (countryName) => {
+    const data = getWikipedia(countryName);
+    const wikiArticle = data.query.pages;
+    const extract = wikiArticle[Object.keys(wikiArticle)[0]];
+    $('#extraInfo').css('display', 'block');
+    $('#economicInfo').css('display', 'none');
+    $('#covidInfo').css('display', 'none');    
+    $('#weatherInfo').css('display', 'none');
+    $('#wikipediaInfo').css('display', 'block');
+    $('#wikipediaResult').html(
+        `   ${extract.extract}...
+        <p>Read more at: <a href=http://en.wikipedia.org/?curid=${extract.pageid}>Wikipedia</a></p>
+        `
+    )
 };

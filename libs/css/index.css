@@ -1,6 +1,7 @@
 body {
     margin: 0;
     min-width: 624px;
+    height: 100vh;
 }
 
 h1 {
@@ -77,7 +78,8 @@ h1 {
 
 #extraInfo {
     width: 400px;
-    height: 280px;
+    min-height: 280px;
+    height: fit-content;
     border: 2.5px solid black;
     position: absolute;
     top: 400px;
