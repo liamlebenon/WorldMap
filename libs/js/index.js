@@ -50,34 +50,40 @@ L.easyButton('<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c
 
 let markers;
 // Button for local sites
-L.easyButton('<img src="https://t4.ftcdn.net/jpg/03/44/49/57/360_F_344495772_96iJVDMuLQBdCrv7kiy3mXUa5FoxB6aA.jpg" width="24px">', function() {  
-    markers = L.markerClusterGroup();
-    markers.removeLayers(marker);
-    const data = getAreasOfInterest(countryInfo.capitalCoords.latitude, countryInfo.capitalCoords.longitude);
-    const areasOfInterest = [];
-    data.features.forEach(poi => {
-        if (poi.properties.name !== '') {
-            areasOfInterest.push({
-                coords: poi.geometry.coordinates,
-                name: poi.properties.name,
-                rate: poi.properties.rate,
-                wikiId: poi.id,
-            });
-        }
-    });
-    console.log(areasOfInterest)
+// L.easyButton('<img src="https://t4.ftcdn.net/jpg/03/44/49/57/360_F_344495772_96iJVDMuLQBdCrv7kiy3mXUa5FoxB6aA.jpg" width="24px">', function() {  
+//     markers = L.markerClusterGroup();
+//     markers.removeLayers(marker);
+//     const data = getAreasOfInterest(countryInfo.capitalCoords.latitude, countryInfo.capitalCoords.longitude);
+//     const areasOfInterest = [];
+//     data.features.forEach(poi => {
+//         if (poi.properties.name !== '') {
+//             areasOfInterest.push({
+//                 coords: poi.geometry.coordinates,
+//                 name: poi.properties.name,
+//                 rate: poi.properties.rate,
+//                 wikiId: poi.id,
+//             });
+//         }
+//     });
+//     console.log(areasOfInterest)
+//     const aoiList = [];
+// 	for (let i = 0; i < areasOfInterest.length; i++) {
+// 		let aoi = areasOfInterest[i];
+// 		let marker = L.marker(new L.LatLng(aoi.coords[1], aoi.coords[0]), { title: aoi.name });
+// 		marker.bindPopup(
+//             `<h3>${aoi.name}</h3>`
+//         );
+//         aoiList.push(marker);
+// 		markers.addLayer(marker);
+// 	}    
+// }).addTo(map);
 
-	for (let i = 0; i < areasOfInterest.length; i++) {
-		let aoi = areasOfInterest[i];
-		let marker = L.marker(new L.LatLng(aoi.coords[1], aoi.coords[0]), { title: aoi.name });
-		marker.bindPopup(
-            `<h3>${aoi.name}</h3>`
-        );
-		markers.addLayer(marker);
-	}
-	map.addLayer(markers);
-}).addTo(map);
+// const aoiGroup = L.layerGroup(aoiList);
+// map.addLayer(markers);
 
+// const overlayAois = {
+//     "Areas of Interest": aoiGroup
+// };
 // The country store to contain all country data for easier use
 let countryInfo = {
     name: '',
@@ -86,6 +92,78 @@ let countryInfo = {
     countryCode: '',
     capitalCoords: {}
 };
+
+let layerControl;
+let aoiGroup;
+
+const createLayerData = () => {
+    markers = L.markerClusterGroup();
+    const data = getAreasOfInterest(countryInfo.capitalCoords.latitude, countryInfo.capitalCoords.longitude);
+    const areasOfInterest = [];
+    data.features.forEach(poi => {
+        let aoiType = poi.properties.kinds.split(',');
+        if (poi.properties.name !== '') {
+            areasOfInterest.push({
+                coords: poi.geometry.coordinates,
+                name: poi.properties.name,
+                rate: poi.properties.rate,
+                wikiId: poi.id,
+                type: aoiType[0]
+            });
+        }
+    });
+
+    console.log(areasOfInterest)
+
+    const aoiList = [];
+	for (let i = 0; i < areasOfInterest.length; i++) {
+		let aoi = areasOfInterest[i];
+        const getIcon = (buildingType) => {
+            switch (buildingType) {
+                case 'historic':
+                    return 'https://simpsonandhill.co.uk/wp-content/uploads/2019/08/bank-building.png';
+
+                case 'architecture':
+                    return 'https://claremontinteriors.com/wp-content/uploads/2020/11/whitearchitectsplans.png';
+
+                case 'cultural':
+                    return 'https://www.seekpng.com/png/full/394-3949007_our-team-transparent-people-white-icon.png';
+
+                case 'sport':
+                    return 'https://iconsplace.com/wp-content/uploads/_icons/ffffff/256/png/football-icon-18-256.png'
+
+                case 'fortifications':
+                    return 'https://flaticons.net/icon.php?slug_category=network-security&slug_icon=castle';
+
+                default:
+                    return 'https://www.pngkey.com/png/full/323-3232484_black-building-icon-png-building-white-icon-png.png';   
+            }
+        }
+        const customIcons = L.icon({
+            iconUrl: getIcon(aoi.type),
+            markerColor: 'blue',
+            iconSize: [80, 80]
+        });
+		let marker = L.marker(new L.LatLng(aoi.coords[1], aoi.coords[0]), { title: aoi.name, icon: customIcons });
+		marker.bindPopup(
+            `<h3>${aoi.name}</h3>
+            <p>${aoi.type.charAt(0).toUpperCase() + aoi.type.slice(1)} site`
+        );
+        aoiList.push(marker);
+    }    
+
+    aoiGroup = L.layerGroup(aoiList);
+    map.addLayer(markers);
+
+    const overlayAois = {
+        "Areas of Interest": aoiGroup
+    };
+
+    layerControl = L.control.layers(overlayAois).addTo(map);
+    map.on('baselayerchange', () => {
+        markers.addLayer(aoiGroup);
+    })
+}
 
 // Func for getting basic info for the country as well as get the Lat/Lng to center the map when the user selects a country
 const centerMap = (countryCode) => {
@@ -142,6 +220,8 @@ const centerMap = (countryCode) => {
             const formattedCountry = countryInfo.name.replace(' ', '+');
             displayWikipediaInfo(formattedCountry);
             marker.openPopup();
+
+            createLayerData();
         }
     })
 };
@@ -245,6 +325,12 @@ const setBorder = (action, countryCode) => {
 // Helper function to remove borders
 const removeBorder = () => {
     map.removeLayer(border);
+}
+
+const removeLayer = () => {
+    map.removeControl(layerControl);
+    map.removeLayer(markers);
+    map.removeLayer(aoiGroup);
 }
 
 
@@ -437,6 +523,7 @@ const getCovidInfo = (country) => {
 $('#countries').change(() => {    
     extraInfoIsOpen = false;
     removeBorder();
+    removeLayer();
     $('#extraInfo').css('display', 'none');
     setBorder('getCountryBorders', $('#countries').val());
     getCountryInfo($('#countries').val());
