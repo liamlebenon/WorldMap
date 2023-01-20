@@ -49,41 +49,7 @@ L.easyButton('<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c
 }).addTo(map);
 
 let markers;
-// Button for local sites
-// L.easyButton('<img src="https://t4.ftcdn.net/jpg/03/44/49/57/360_F_344495772_96iJVDMuLQBdCrv7kiy3mXUa5FoxB6aA.jpg" width="24px">', function() {  
-//     markers = L.markerClusterGroup();
-//     markers.removeLayers(marker);
-//     const data = getAreasOfInterest(countryInfo.capitalCoords.latitude, countryInfo.capitalCoords.longitude);
-//     const areasOfInterest = [];
-//     data.features.forEach(poi => {
-//         if (poi.properties.name !== '') {
-//             areasOfInterest.push({
-//                 coords: poi.geometry.coordinates,
-//                 name: poi.properties.name,
-//                 rate: poi.properties.rate,
-//                 wikiId: poi.id,
-//             });
-//         }
-//     });
-//     console.log(areasOfInterest)
-//     const aoiList = [];
-// 	for (let i = 0; i < areasOfInterest.length; i++) {
-// 		let aoi = areasOfInterest[i];
-// 		let marker = L.marker(new L.LatLng(aoi.coords[1], aoi.coords[0]), { title: aoi.name });
-// 		marker.bindPopup(
-//             `<h3>${aoi.name}</h3>`
-//         );
-//         aoiList.push(marker);
-// 		markers.addLayer(marker);
-// 	}    
-// }).addTo(map);
 
-// const aoiGroup = L.layerGroup(aoiList);
-// map.addLayer(markers);
-
-// const overlayAois = {
-//     "Areas of Interest": aoiGroup
-// };
 // The country store to contain all country data for easier use
 let countryInfo = {
     name: '',
