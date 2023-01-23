@@ -13,7 +13,6 @@ tiles.addTo(map);
 
 // Close extra info button
 const closeInfoBox = () => {
-    console.log('Clicked')
     $('#extraInfo').fadeOut(300);
 };
 
@@ -59,15 +58,18 @@ let countryInfo = {
     capitalCoords: {}
 };
 
+// Initialize variables for cluster markers
 let layerControl;
 let aoiGroup;
 
+// This creates the layers for marker clusters
 const createLayerData = () => {
     markers = L.markerClusterGroup();
     const data = getAreasOfInterest(countryInfo.capitalCoords.latitude, countryInfo.capitalCoords.longitude);
     const areasOfInterest = [];
     data.features.forEach(poi => {
         let aoiType = poi.properties.kinds.split(',');
+        // Create an object of data needed for the areas of interest
         if (poi.properties.name !== '') {
             areasOfInterest.push({
                 coords: poi.geometry.coordinates,
@@ -79,9 +81,8 @@ const createLayerData = () => {
         }
     });
 
-    console.log(areasOfInterest)
-
     const aoiList = [];
+    // For loop to check each AOI and assign a custom icon based on the areas type
 	for (let i = 0; i < areasOfInterest.length; i++) {
 		let aoi = areasOfInterest[i];
         const getIcon = (buildingType) => {
@@ -118,6 +119,7 @@ const createLayerData = () => {
         aoiList.push(marker);
     }    
 
+    // Creating the layer group
     aoiGroup = L.layerGroup(aoiList);
     map.addLayer(markers);
 
@@ -142,6 +144,7 @@ const centerMap = (countryCode) => {
         },
         success: (result) => {
             let coords;
+            const info = getCountryInfo(countryCode);
             const data = result.results;
             // Loop through array to ensure that the latitude is returned for the correct country
             for (let i = 0; i < data.length; i++) {
@@ -150,7 +153,7 @@ const centerMap = (countryCode) => {
                     break;
                 }
             };
-            const info = getCountryInfo(countryCode);
+            
             map.setView([coords.lat, coords.lng], 5);
             marker.setLatLng(coords);
 
@@ -166,9 +169,6 @@ const centerMap = (countryCode) => {
                 latitude: capitalCoords[0].lat,
                 longitude: capitalCoords[0].lon
             };
-            console.log(countryInfo.capital)
-
-            console.log(countryInfo)
             $('#countryInfo').html(
                 `<div class='country-info'>
                     <h1 id='countryName'>${info[0].name}</h1><img class='flag' crossorigin src='https://countryflagsapi.com/png/${countryCode}'/>
@@ -191,8 +191,6 @@ const centerMap = (countryCode) => {
         }
     })
 };
-
-console.log(countryInfo)
 
 let marker;
 
@@ -254,7 +252,6 @@ $('#document').ready(() => {
             action: 'populateSelect'
         },
         success: (result) => {
-            console.log(result)
             result['features'].forEach((country) => {
                 $("<option>", {
                     value: country.properties.iso_a2,
@@ -294,6 +291,7 @@ const removeBorder = () => {
 }
 
 const removeLayer = () => {
+    // Clear the layers of markers on the map
     map.removeControl(layerControl);
     map.removeLayer(markers);
     map.removeLayer(aoiGroup);
@@ -327,8 +325,6 @@ const displayEconomicInfo = (currencyCode) => {
     // Clears the block to display new info
     $('#currencies').html('');
     const data = getEconomicInfo(currencyCode);
-    console.log('This is running');
-    console.log(data);
     $('#economicInfo').css('display', 'block');
     $('#currencies').html(
         // Populates the select with currencies for conversion
@@ -372,7 +368,9 @@ const getWeatherInfo = (cityName) => {
 
 // Function to display information for the weather
 const displayWeatherInfo = (cityName) => {
-    const data = getWeatherInfo(cityName);
+    const spaceIndex = cityName.indexOf(' ');
+    const formattedName = cityName.slice(0, spaceIndex);
+    const data = getWeatherInfo(formattedName);
     $('#extraInfo').css('display', 'block');
     $('#economicInfo').css('display', 'none');
     $('#covidInfo').css('display', 'none');    
@@ -412,7 +410,7 @@ const displayCovidInfo = (country) => {
     const provinceData = {};
     // Taking the returned data and assigning it to an object containing all data for provinces with the province as the key and another object as the value
     data.data.covid19Stats.forEach(province => {
-        console.log(province.province)
+        // If statement checks to see if theere is data for each province or if the data is for the entire country
         if (province.province === null) {
             provinceData[province.country] = {
                 confirmed: province.confirmed,
@@ -442,8 +440,6 @@ const displayCovidInfo = (country) => {
         }),
         $('#provinces').prepend('<option disabled selected>Select a province...</option>')
     )
-    console.log(provinceData);
-    console.log(countryInfo.capitalCoords.latitude);
     getAreasOfInterest(countryInfo.capitalCoords.latitude, countryInfo.capitalCoords.longitude);
 }
 
@@ -479,7 +475,6 @@ const getCovidInfo = (country) => {
         },
         success: (result) => {
             data = result;
-            console.log(data);
         }
     });
     return data;
@@ -496,6 +491,7 @@ $('#countries').change(() => {
     centerMap($('#countries').val());
 });
 
+// Gets the coordinates for the capital city to be used for other functions
 const getCoordsForCapital = (capital) => {
     let data = '';
     $.ajax({
@@ -513,6 +509,7 @@ const getCoordsForCapital = (capital) => {
     return data;
 };
 
+// Function to fetch the areas of interest 
 const getAreasOfInterest = (lat, long) => {
     let data = '';
     $.ajax({
@@ -526,12 +523,12 @@ const getAreasOfInterest = (lat, long) => {
         },
         success: (result) => {
             data = result;
-            console.log(data)
         }
     });
     return data;
 };
 
+// Function to return the wikipedia excerpt
 const getWikipedia = (countryName) => {
     let data = '';
     $.ajax({
@@ -544,12 +541,12 @@ const getWikipedia = (countryName) => {
         },
         success: (result) => {
             data = result;
-            console.log(data);
         }
     });
     return data;
 }
 
+// Function to display the wikipedia information for the selected country
 const displayWikipediaInfo = (countryName) => {
     const data = getWikipedia(countryName);
     const wikiArticle = data.query.pages;
