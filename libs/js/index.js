@@ -143,19 +143,15 @@ const centerMap = (countryCode) => {
             iso_a2: countryCode,
         },
         success: (result) => {
-            let coords;
             const info = getCountryInfo(countryCode);
-
-            const capitalCoords = getCoordsForCapital(info[0].capital);
-            map.setView([capitalCoords[0].lat, capitalCoords[0].lon], 5);
-            coords = {
+            const capitalCoords = getCoordsForCapital(info[0].capital);            
+            const coords = {
                 lat: capitalCoords[0].lat,
                 lng: capitalCoords[0].lon
-            }
+            };
+            map.setView([coords.lat, coords.lng], 5);
+    
             marker.setLatLng(coords);
-
-            // Get coords for the capital city
-            
 
             // Adds all the basic info to the country store object (countryInfo)
             countryInfo.name = info[0].name;
