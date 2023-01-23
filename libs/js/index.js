@@ -145,20 +145,17 @@ const centerMap = (countryCode) => {
         success: (result) => {
             let coords;
             const info = getCountryInfo(countryCode);
-            const data = result.results;
-            // Loop through array to ensure that the latitude is returned for the correct country
-            for (let i = 0; i < data.length; i++) {
-                if (data[i].components['ISO_3166-1_alpha-2'] === countryCode) {
-                    coords = data[i].geometry;
-                    break;
-                }
-            };
-            
-            map.setView([coords.lat, coords.lng], 5);
+
+            const capitalCoords = getCoordsForCapital(info[0].capital);
+            map.setView([capitalCoords[0].lat, capitalCoords[0].lon], 5);
+            coords = {
+                lat: capitalCoords[0].lat,
+                lng: capitalCoords[0].lon
+            }
             marker.setLatLng(coords);
 
             // Get coords for the capital city
-            const capitalCoords = getCoordsForCapital(info[0].capital);
+            
 
             // Adds all the basic info to the country store object (countryInfo)
             countryInfo.name = info[0].name;
