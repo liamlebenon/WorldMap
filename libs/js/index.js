@@ -16,33 +16,38 @@ const closeInfoBox = () => {
     $('#extraInfo').fadeOut(300);
 };
 
+const closeCountryInfo = () => {
+    $('#countryInfoModal').fadeOut(300);
+}
+
 $('.closeExtraInfo').click(closeInfoBox);
+$('#closeCountryInfo').click(closeCountryInfo);
 
 // Main country info card
-L.easyButton('<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Globe_icon.svg/2048px-Globe_icon.svg.png" width="16px">', function(){
-    $('#countryInfo').toggle(200);
+L.easyButton('<i class="fa-solid fa-globe"></i>', function(){
+    $('#countryInfoModal').toggle(200);
 }).addTo(map);
 
-L.easyButton('<img src="https://cdn-icons-png.flaticon.com/512/152/152814.png" width="16px">', function(){
+L.easyButton('<i class="fa-solid fa-book"></i>', function(){
     const formattedCountry = countryInfo.name.replace(' ', '+');
     $('#extraInfo').fadeIn(300);
     displayWikipediaInfo(formattedCountry);
 }).addTo(map);
 
 // Extra info for economics card
-L.easyButton('&dollar;', function(){  
+L.easyButton('<i class="fa-solid fa-dollar"></i>', function(){  
     $('#extraInfo').fadeIn(300);
     displayEconomicInfo(countryInfo.currencyCode);
 }).addTo(map);
 
 // Extra info for weather card    
-L.easyButton('<img src="https://cdn-icons-png.flaticon.com/512/218/218706.png" width="18px">', function() {   
+L.easyButton('<i class="fa-solid fa-cloud"></i>', function() {   
     $('#extraInfo').fadeIn(300);
     displayWeatherInfo(countryInfo.capital);
 }).addTo(map);
 
 // Extra info for covid card
-L.easyButton('<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Coronavirus_icon.svg/240px-Coronavirus_icon.svg.png" width="22px">', function() {   
+L.easyButton('<i class="fa-solid fa-virus-covid"></i>', function() {   
     $('#extraInfo').fadeIn(300);
     displayCovidInfo(countryInfo.name);
 }).addTo(map);
@@ -55,7 +60,8 @@ let countryInfo = {
     capital: '',
     currencyCode: '',
     countryCode: '',
-    capitalCoords: {}
+    capitalCoords: {},
+    currency: '',
 };
 
 // Initialize variables for cluster markers
@@ -88,30 +94,36 @@ const createLayerData = () => {
         const getIcon = (buildingType) => {
             switch (buildingType) {
                 case 'historic':
-                    return 'https://simpsonandhill.co.uk/wp-content/uploads/2019/08/bank-building.png';
+                    return 'fa-landmark';
 
                 case 'architecture':
-                    return 'https://claremontinteriors.com/wp-content/uploads/2020/11/whitearchitectsplans.png';
+                    return 'fa-sitemap';
 
                 case 'cultural':
-                    return 'https://www.seekpng.com/png/full/394-3949007_our-team-transparent-people-white-icon.png';
+                    return 'fa-person';
 
                 case 'sport':
-                    return 'https://iconsplace.com/wp-content/uploads/_icons/ffffff/256/png/football-icon-18-256.png'
+                    return 'fa-person-running'
 
                 case 'fortifications':
-                    return 'https://flaticons.net/icon.php?slug_category=network-security&slug_icon=castle';
+                    return 'fa-chess-rook';
+
+                case 'religion':
+                    return 'fa-hands-praying';
 
                 default:
-                    return 'https://www.pngkey.com/png/full/323-3232484_black-building-icon-png-building-white-icon-png.png';   
+                    return 'fa-building';   
             }
         }
-        const customIcons = L.icon({
-            iconUrl: getIcon(aoi.type),
-            markerColor: 'blue',
-            iconSize: [80, 80]
+        const customIcons = L.ExtraMarkers.icon({
+            icon: getIcon(aoi.type),
+            markerColor: 'red',
+            shape: 'square',
+            prefix: 'fa'
         });
 		let marker = L.marker(new L.LatLng(aoi.coords[1], aoi.coords[0]), { title: aoi.name, icon: customIcons });
+        const wikiData = getWikipedia(aoi.name.replace(' ', '+'));
+        console.log(wikiData)
 		marker.bindPopup(
             `<h3>${aoi.name}</h3>
             <p>${aoi.type.charAt(0).toUpperCase() + aoi.type.slice(1)} site`
@@ -162,22 +174,35 @@ const centerMap = (countryCode) => {
                 latitude: capitalCoords[0].lat,
                 longitude: capitalCoords[0].lon
             };
-            $('#countryInfo').html(
-                `<div class='country-info'>
-                    <h1 id='countryName'>${info[0].name}</h1><img class='flag' crossorigin src='https://countryflagsapi.com/png/${countryCode}'/>
-                    <hr />
-                    <ul>
-                        <li><b>Capital City</b>: ${info[0].capital}</li>
-                        <li><b>Population</b>: ${info[0].population / 1000} million</li>
-                        <li><b>Land Area</b>: ${info[0].surface_area.toLocaleString('en-US')} km&#178;</li>
-                        <li><b>Density</b>: ${info[0].pop_density} /km&#178;</li>
-                        <li><b>Currency</b>: ${info[0].currency.code}</li>
-                    </ul>
-                </div>`
-            );
-            $('#countryInfo').css('display: block');
-            const formattedCountry = countryInfo.name.replace(' ', '+');
-            displayWikipediaInfo(formattedCountry);
+            countryInfo.population = info[0].population;
+            countryInfo.currency = info[0].currency.code;
+            countryInfo.landArea = info[0].surface_area.toLocaleString('en-US');
+
+            $('#countryName').html(countryInfo.name);
+            $('#countryFlag').attr('src', `https://countryflagsapi.com/png/${countryCode}`)
+            $('#modalInfo').css('display: block');
+            $('#modalInfo').html(`
+                <table class="table">
+                    <tbody>
+                      <tr>
+                        <th><i class="fa-solid fa-landmark-flag"></i> Capital City</th>
+                        <td>${countryInfo.capital}</td>
+                      </tr>
+                      <tr>
+                        <th><i class="fa-solid fa-people-line"></i> Population</th>
+                        <td>${countryInfo.population / 1000} million</td>
+                      </tr>
+                      <tr>
+                        <th><i class="fa-solid fa-sack-dollar"></i> Currency</th>
+                        <td>${countryInfo.currency}</td>
+                      </tr>
+                      <tr>
+                        <th><i class="fa-solid fa-ruler-combined"></i> Land Area</th>
+                        <td>${countryInfo.landArea} km&#178;</td>
+                    </tr>
+                    </tbody>
+                </table>`
+            )
             marker.openPopup();
 
             createLayerData();
@@ -312,11 +337,12 @@ const getEconomicInfo = (currencyCode) => {
 // Function to display financial information for the country
 const displayEconomicInfo = (currencyCode) => {
     $('#currencyResult').html('');
-    $('#weatherInfo').css('display', 'none');
     $('#covidInfo').css('display', 'none');
     $('#wikipediaInfo').css('display', 'none');
-    // Clears the block to display new info
+    // Clears block to display new info
     $('#currencies').html('');
+    $('#extraInfoModal').css('display', 'block');
+
     const data = getEconomicInfo(currencyCode);
     $('#economicInfo').css('display', 'block');
     $('#currencies').html(
@@ -392,9 +418,8 @@ const displayCovidInfo = (country) => {
     }
     const data = getCovidInfo(country);
     // Clears the card for the new covid information to be displayed
-    $('#extraInfo').css('display', 'block');
+    $('#extraInfoModal').css('display', 'block');
     $('#economicInfo').css('display', 'none');
-    $('#weatherInfo').css('display', 'none');
     $('#wikipediaInfo').css('display', 'none');
     $('#covidInfo').css('display', 'block');
     $('#provinces').html('');
@@ -420,16 +445,16 @@ const displayCovidInfo = (country) => {
 
     });
 
-    $('#provinces').html(
+    $('#extraInfoBody').html(
         // Populates the select with currencies for conversion
         Object.keys(provinceData).forEach((key) => {
-                $('<option>', {
-                    value: key,
-                    text: key,
-                    confirmed: provinceData[key].confirmed,
-                    deaths: provinceData[key].deaths,
-                    lastUpdate: provinceData[key].lastUpdate
-                }).appendTo('#provinces');
+            $('<option>', {
+                value: key,
+                text: key,
+                confirmed: provinceData[key].confirmed,
+                deaths: provinceData[key].deaths,
+                lastUpdate: provinceData[key].lastUpdate
+            }).appendTo('#provinces');
         }),
         $('#provinces').prepend('<option disabled selected>Select a province...</option>')
     )
@@ -445,12 +470,22 @@ $('#provinces').change(() => {
         lastUpdated: selected.attr('lastupdate')
     };
     $('#provinceResult').html(
-        `   <ul>
-                <li><b>Total Confirmed</b>: ${data.confirmed}</li>
-                <li><b>Total Deaths</b>: ${data.deaths}</li>
-                <li><b>Last Updated</b>: ${data.lastUpdated}</li>
-            </ul>
-        
+        `<table class="table">
+            <tbody>
+              <tr>
+                <th><i class="fa-solid fa-virus-covid"></i> Confirmed Cases</th>
+                <td>${data.confirmed}</td>
+              </tr>
+              <tr>
+                <th><i class="fa-solid fa-cross"></i> Deaths</th>
+                <td>${data.deaths}</td>
+              </tr>
+              <tr>
+                <th><i class="fa-solid fa-calendar-days"></i> Last Updated</th>
+                <td>${data.lastUpdated}</td>
+              </tr>
+            </tbody>
+        </table>
         `
     );
 });
@@ -544,14 +579,13 @@ const displayWikipediaInfo = (countryName) => {
     const data = getWikipedia(countryName);
     const wikiArticle = data.query.pages;
     const extract = wikiArticle[Object.keys(wikiArticle)[0]];
-    $('#extraInfo').css('display', 'block');
     $('#economicInfo').css('display', 'none');
-    $('#covidInfo').css('display', 'none');    
-    $('#weatherInfo').css('display', 'none');
+    $('#covidInfo').css('display', 'none');
     $('#wikipediaInfo').css('display', 'block');
+    $('#extraInfoModal').css('display', 'block');
+    console.log(extract)
     $('#wikipediaResult').html(
-        `   ${extract.extract}...
-        <p>Read more at: <a href=http://en.wikipedia.org/?curid=${extract.pageid}>Wikipedia</a></p>
-        `
+        `${extract.extract}
+        <p>Read more at: <a href=https://en.wikipedia.org/?curid=${extract.pageid}>Wikipedia</a></p>`
     )
 };
