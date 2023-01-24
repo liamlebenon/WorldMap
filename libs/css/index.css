@@ -1,3 +1,30 @@
+@media (min-width: 490px) {
+    #countryName {
+        max-width: 300px;
+        line-height: 30px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    #extraInfo {
+    width: 25%;
+    height: fit-content;
+    max-height: 45vh;
+    position: absolute;
+    top: 450px;
+    }
+    #countryInfoModal {
+        width: 20%;
+        height:fit-content;
+        min-width: 278px;
+    }
+    .modal {
+        position: absolute;
+        top: 100px;
+        left: 100px;
+    }
+}
+
 .modal {
     overflow: auto;
 }
@@ -21,14 +48,6 @@
     text-align: center;
 }
 
-#countryName {
-    max-width: 300px;
-    line-height: 30px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
 .modal-footer {
     border: none;
 }
@@ -42,29 +61,15 @@
     z-index: 1;
 }
 
-#countryInfoModal {
-    width: 20%;
-    height:fit-content;
-    min-width: 278px;
-}
+
 
 #extraInfo {
     min-width: 342px;
 }
 
-.modal {
-    position: absolute;
-    top: 100px;
-    left: 100px;
-}
 
-#extraInfo {
-    width: 25%;
-    height: fit-content;
-    max-height: 45vh;
-    position: absolute;
-    top: 450px;
-}
+
+
 
 #provinces {
     width: 40%;
