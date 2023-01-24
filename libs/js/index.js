@@ -123,12 +123,19 @@ const createLayerData = () => {
         });
 		let marker = L.marker(new L.LatLng(aoi.coords[1], aoi.coords[0]), { title: aoi.name, icon: customIcons });
         const wikiData = getWikipedia(aoi.name.replace(' ', '+'));
-        console.log(wikiData)
+        let wikiDataPages;
+        if (wikiData !== null) {
+            wikiDataPages = wikiData.query.pages;        
+            const extract = wikiDataPages[Object.keys(wikiDataPages)[0]];
+        console.log(extract)
 		marker.bindPopup(
             `<h3>${aoi.name}</h3>
-            <p>${aoi.type.charAt(0).toUpperCase() + aoi.type.slice(1)} site`
+            ${extract.extract === undefined ? 'No wikipedia data available...' : extract.extract}
+            </p>`
         );
         aoiList.push(marker);
+        }
+
     }    
 
     // Creating the layer group
