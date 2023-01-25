@@ -29,7 +29,7 @@
             </select>
         </div>     
 
-        <div class="modal" id="countryInfoModal" tabindex="-1" role="dialog" style="display: none">
+        <div class="modal countryInfo" id="countryInfoModal" tabindex="-1" role="dialog" style="display: none">
             <div class="modal-side" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -46,75 +46,133 @@
         </div>
 
         <div id="extraInfoModal" style="display: none">
-            <div class="modal" id="extraInfo" tabindex="-1" role="dialog" style="display: none">
-              <div class="modal-side" role="document">
-                <div class="modal-content">
-                
-                  <!-- Wikipedia Modal -->
-                  <div id="wikipediaInfo">
-                    <div class="modal-header">
-                      <h5 class="modal-title">About the Country</h5>
-                    </div>
-                    <div class="modal-body" id="wikipediaResult">
-                      
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary closeExtraInfo" data-dismiss="modal">Close</button>
+          <div class="modal extraInfo" id="extraInfo" tabindex="-1" role="dialog" style="display: none">
+            <div class="modal-side" role="document">
+              <div class="modal-content">
+              
+                <!-- Wikipedia Modal -->
+                <div id="wikipediaInfo">
+                  <div class="modal-header">
+                    <h5 class="modal-title">About the Country</h5>
+                  </div>
+                  <div class="modal-body" id="wikipediaResult">
+                    
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary closeExtraInfo" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+
+                <!-- Economic Modal -->
+                <div id="economicInfo">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Exchange Rates</h5>
+                  </div>
+                  <div class="modal-body">
+                    <p>Select a currency:
+                      <select id="currencies">
+                      </select>
+                    </p>
+                    <div id="currencyResult">
                     </div>
                   </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary closeExtraInfo" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
 
-                  <!-- Economic Modal -->
-                  <div id="economicInfo">
-                    <div class="modal-header">
-                      <h5 class="modal-title">Exchange Rates</h5>
-                    </div>
-                    <div class="modal-body">
-                      <p>Select a currency:
-                        <select id="currencies">
+                <!-- Covid Modal -->
+                <div id="covidInfo">
+                  <div class="modal-header">
+                    <h5 class="modal-title">COVID-19 Information</h5>
+                  </div>
+                  <div class="modal-body">
+                    <div id="provinceSelect">
+                      <p>Select a Province:<br/>
+                        <select id="provinces">
                         </select>
                       </p>
-                      <div id="currencyResult">
-                      </div>
                     </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary closeExtraInfo" data-dismiss="modal">Close</button>
+                    <div id="provinceResult">
                     </div>
                   </div>
-
-                  <!-- Covid Modal -->
-                  <div id="covidInfo">
-                    <div class="modal-header">
-                      <h5 class="modal-title">COVID-19 Information</h5>
-                    </div>
-                    <div class="modal-body">
-                      <div id="provinceSelect">
-                        <p>Select a Province:<br/>
-                          <select id="provinces">
-                          </select>
-                        </p>
-                      </div>
-                      <div id="provinceResult">
-                      </div>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary closeExtraInfo" data-dismiss="modal">Close</button>
-                    </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary closeExtraInfo" data-dismiss="modal">Close</button>
                   </div>
-                
-                
                 </div>
+
               </div>
             </div>
           </div>
-        
-            <!-- <div id="weatherInfo" style="display: none">
-                <div id="weatherTitle"><h1>Current Weather</h1><img id="weatherIcon"/></div>
-                <hr />
-                <div id="weatherInfoList">
+        </div>
 
-                </div>
-                <button class="closeExtraInfo">Close</button>
-            </div> -->
+        <div id="weatherModal" class="modal fade" tabindex="-1">
+          <div class="modal-dialog vertically-centered">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="weatherLocation"></h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div id="pre-load"></div>
+                    <div class="row">
+                      <div class="col border m-2">
+                        <p class="fw-bold fs-5 mt-3">TODAY</p>
+                        <div class="row">
+                          <div class="col text-center m-2">
+                            <p id="todayConditions" class="fw-bold fs-6"></p>
+                          </div>
+                          <div class="col text-center">
+                            <img id="todayIcon" class="img-fluid mt-0" src="" alt="weather conditions" title="weather conditions">
+                          </div>              
+                          <div class="col text-center">
+                            <p class="fw-bold fs-4 mb-0"><span id="todayMaxTemp"></span><sup>o</sup><span class="tempMetric">c</span></p>
+                            <p class="fs-5 mt-0 text-secondary"><span id="todayMinTemp"></span><sup>o</sup><span class="tempMetric">c</span></p>
+                          </div>              
+                        </div>
+                      </div>   
+                    </div>
+                    <div class="row">
+                      <div class="col border m-2">
+                        <div class="row">
+                          <div class="col text-center">
+                            <p id="day1Date" class="fw-bold fs-6 mt-3">DayOneDate</p>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col text-center">
+                            <p class="fw-bold fs-4 mb-0"><span id="day1MaxTemp"></span><sup>o</sup>c</p>
+                            <p class="fs-5 mt-0 text-secondary"><span id="day1MinTemp"></span><sup>o</sup>c</p>
+                          </div>
+                          <div class="col text-center">
+                            <img id="day1Icon" src="" alt="day one conditions" title="day one conditions">
+                          </div>    
+                        </div>
+                      </div>   
+                      <div class="col border m-2">
+                        <div class="row">
+                          <div class="col text-center">
+                            <p id="day2Date" class="fw-bold fs-6 mt-3"></p>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col text-center">
+                            <p class="fw-bold fs-4 mb-0"><span id="day2MaxTemp"></span><sup>o</sup>c</p>
+                            <p class="fs-5 mt-0 text-secondary"><span id="day2MinTemp"></span><sup>o</sup>c</p>
+                          </div>
+                          <div class="col text-center">
+                            <img id="day2Icon" src="" alt="" title="">
+                          </div>    
+                        </div>
+                      </div>         
+                   </div>   
+                  </div>
+                  <div class="modal-footer">
+                      <p>Weather provided by <b>WeatherAPI.com</b></p>
+                  </div>
+              </div>
+          </div>
+      </div>
 
         <div id="mapid"></div>
         </div>

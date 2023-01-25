@@ -23,11 +23,13 @@ const closeCountryInfo = () => {
 $('.closeExtraInfo').click(closeInfoBox);
 $('#closeCountryInfo').click(closeCountryInfo);
 
+
 // Main country info card
 L.easyButton('<i class="fa-solid fa-globe"></i>', function(){
     $('#countryInfoModal').toggle(200);
 }).addTo(map);
 
+// Extra info for wikipedia card
 L.easyButton('<i class="fa-solid fa-book"></i>', function(){
     const formattedCountry = countryInfo.name.replace(' ', '+');
     $('#extraInfo').fadeIn(300);
@@ -43,7 +45,11 @@ L.easyButton('<i class="fa-solid fa-dollar"></i>', function(){
 // Extra info for weather card    
 L.easyButton('<i class="fa-solid fa-cloud"></i>', function() {   
     $('#extraInfo').fadeIn(300);
-    displayWeatherInfo(countryInfo.capital);
+    displayWeatherInfo(countryInfo.capital);    
+    $('#countryInfoModal').hide();
+    $('#extraInfoModal').hide();
+    $("#weatherModal").modal("show");
+
 }).addTo(map);
 
 // Extra info for covid card
@@ -111,10 +117,27 @@ const createLayerData = () => {
                 case 'religion':
                     return 'fa-hands-praying';
 
+                case 'nature':
+                    return 'fa-tree';
+
+                case 'water':
+                    return 'fa-water';
+
+                case 'railway_stations':
+                    return 'fa-train';
+
+                case 'natural':
+                    return 'fa-tree'
+
+                case 'palaces':
+                    return 'fa-place-of-worship';
+
                 default:
                     return 'fa-building';   
             }
         }
+
+        // Uses the getIcon function to get the correct marker icon
         const customIcons = L.ExtraMarkers.icon({
             icon: getIcon(aoi.type),
             markerColor: 'red',
@@ -122,12 +145,13 @@ const createLayerData = () => {
             prefix: 'fa'
         });
 		let marker = L.marker(new L.LatLng(aoi.coords[1], aoi.coords[0]), { title: aoi.name, icon: customIcons });
+
+        // Gets the wikipedia excerpt for the location
         const wikiData = getWikipedia(aoi.name.replace(' ', '+'));
         let wikiDataPages;
         if (wikiData !== null) {
             wikiDataPages = wikiData.query.pages;        
             const extract = wikiDataPages[Object.keys(wikiDataPages)[0]];
-        console.log(extract)
 		marker.bindPopup(
             `<h3>${aoi.name}</h3>
             ${extract.extract === undefined ? 'No wikipedia data available...' : extract.extract}
@@ -397,22 +421,25 @@ const displayWeatherInfo = (cityName) => {
     const spaceIndex = cityName.indexOf(' ');
     const formattedName = cityName.slice(0, spaceIndex);
     const data = getWeatherInfo(formattedName);
-    $('#extraInfo').css('display', 'block');
-    $('#economicInfo').css('display', 'none');
-    $('#covidInfo').css('display', 'none');    
-    $('#wikipediaInfo').css('display', 'none');
-    $('#weatherInfo').css('display', 'block');
-    $('#weatherIcon').attr('src', `${data.current.condition.icon}`);
-    $('#weatherInfoList').html(
-        `   <h2>${cityName}</h2>
-            <ul>
-                <li><b>Temperature</b>: ${data.current.temp_c}&#176;C</li>
-                <li><b>Condition</b>: ${data.current.condition.text} </li>
-                <li><b>UV Index</b>: ${data.current.uv}</li>
-                <li><b>Wind Speed</b>: ${data.current.wind_kph} km/h ${data.current.wind_dir}</li>
-            </ul>
-        `
-    )
+    console.log(data);
+    const forecast = data.data.forecast;
+    $('#weatherLocation').html(
+        `${data.data.location} Forecast`
+    );
+    $('#todayConditions').html(forecast[0].conditionText);
+    $('#todayIcon').attr('src', forecast[0].conditionIcon);
+    $('#todayMaxTemp').html(forecast[0].maxC);
+    $('#todayMinTemp').html(forecast[0].minC);
+
+    $('#day1Date').html(forecast[1].date);
+    $('#day1MaxTemp').html(forecast[1].maxC);
+    $('#day1MinTemp').html(forecast[1].minC);
+    $('#day1Icon').attr('src', forecast[1].conditionIcon);
+
+    $('#day2Date').html(forecast[2].date);
+    $('#day2MaxTemp').html(forecast[2].maxC);
+    $('#day2MinTemp').html(forecast[2].minC);
+    $('#day2Icon').attr('src', forecast[2].conditionIcon);
 };
 
 const displayCovidInfo = (country) => {
