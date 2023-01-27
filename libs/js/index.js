@@ -59,7 +59,7 @@ L.easyButton('<i class="fa-solid fa-virus-covid"></i>', function() {
 }).addTo(map);
 
 let markers;
-
+let marker;
 // The country store to contain all country data for easier use
 let countryInfo = {
     name: '',
@@ -192,9 +192,7 @@ const centerMap = (countryCode) => {
                 lat: capitalCoords[0].lat,
                 lng: capitalCoords[0].lon
             };
-            map.setView([coords.lat, coords.lng], 5);
-    
-            marker.setLatLng(coords);
+            marker = L.marker(coords).addTo(map);
 
             // Adds all the basic info to the country store object (countryInfo)
             countryInfo.name = info[0].name;
@@ -241,7 +239,7 @@ const centerMap = (countryCode) => {
     })
 };
 
-let marker;
+
 
 // Uses navigator to get the users current location and then makes a request to an API to get the country from the Lat/Lng returned
 const findUserLocation = () => {
@@ -258,7 +256,7 @@ const findUserLocation = () => {
                 const countryCode = result.trim();
                 setBorder('getCountryBorders', countryCode);
                 centerMap(countryCode);
-                marker = L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
+                $('#countries').val(countryCode).change()
             }
         });
     };
@@ -328,8 +326,9 @@ const setBorder = (action, countryCode) => {
             iso_a2: countryCode
         },
         success: (result) => {
-            border = L.geoJSON(result);
-            border.addTo(map);
+            border = L.geoJSON(result).addTo(map)
+            map.fitBounds(border.getBounds());
+            
         }
     });
 }
@@ -544,13 +543,12 @@ const getCovidInfo = (country) => {
 
 // This will update the map to display the relevant features once a new country is selected
 $('#countries').change(() => {    
-    extraInfoIsOpen = false;
     removeBorder();
     removeLayer();
     $('#extraInfo').css('display', 'none');
     setBorder('getCountryBorders', $('#countries').val());
-    getCountryInfo($('#countries').val());
     centerMap($('#countries').val());
+    getCountryInfo($('#countries').val());
 });
 
 // Gets the coordinates for the capital city to be used for other functions
