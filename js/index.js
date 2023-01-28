@@ -59,6 +59,7 @@ L.easyButton('<i class="fa-solid fa-virus-covid"></i>', function() {
 }).addTo(map);
 
 let markers;
+
 // The country store to contain all country data for easier use
 let countryInfo = {
     name: '',
@@ -72,101 +73,109 @@ let countryInfo = {
 // Initialize variables for cluster markers
 let layerControl;
 let aoiGroup;
-let parkGroup;
 
 // This creates the layers for marker clusters
 const createLayerData = () => {
     markers = L.markerClusterGroup();
-    const data = getAreasOfInterest(countryInfo.countryCode);
-    const airportData = getAirports(countryInfo.countryCode);
+    const data = getAreasOfInterest(countryInfo.capitalCoords.latitude, countryInfo.capitalCoords.longitude);
     const areasOfInterest = [];
-    const airports = [];
-
-    airportData.geonames.forEach(airport => {
-        airports.push({
-            coords: {
-                lat: airport.lat,
-                lng: airport.lng
-            },
-            name: airport.name
-        })
-    });
-
-    data.geonames.forEach(poi => {
+    data.features.forEach(poi => {
+        let aoiType = poi.properties.kinds.split(',');
         // Create an object of data needed for the areas of interest
-        areasOfInterest.push({
-            coords: {
-                lat: poi.lat,
-                lng: poi.lng
-            },
-            name: poi.name,
-        });
+        if (poi.properties.name !== '') {
+            areasOfInterest.push({
+                coords: poi.geometry.coordinates,
+                name: poi.properties.name,
+                rate: poi.properties.rate,
+                wikiId: poi.id,
+                type: aoiType[0]
+            });
+        }
     });
-    
-    const airportList = [];
-    for (let i = 0; i < airports.length; i++) {
-        let airport = airports[i];
-        const customIcons = L.ExtraMarkers.icon({
-            icon: 'fa-plane',
-            markerColor: 'yellow',
-            shape: 'circle',
-            prefix: 'fa'
-        });
 
-        let marker = L.marker(new L.LatLng(airport.coords.lat, airport.coords.lng), { title: airport.name, icon: customIcons });
-        marker.bindPopup(`
-            <h3>${airport.name}</h3>
-        `)
-        airportList.push(marker);
-    }
-
-    const cities = [];
-    
+    const aoiList = [];
     // For loop to check each AOI and assign a custom icon based on the areas type
 	for (let i = 0; i < areasOfInterest.length; i++) {
 		let aoi = areasOfInterest[i];
+        const getIcon = (buildingType) => {
+            switch (buildingType) {
+                case 'historic':
+                    return 'fa-landmark';
+
+                case 'architecture':
+                    return 'fa-sitemap';
+
+                case 'cultural':
+                    return 'fa-person';
+
+                case 'sport':
+                    return 'fa-person-running'
+
+                case 'fortifications':
+                    return 'fa-chess-rook';
+
+                case 'religion':
+                    return 'fa-hands-praying';
+
+                case 'nature':
+                    return 'fa-tree';
+
+                case 'water':
+                    return 'fa-water';
+
+                case 'railway_stations':
+                    return 'fa-train';
+
+                case 'natural':
+                    return 'fa-tree'
+
+                case 'palaces':
+                    return 'fa-place-of-worship';
+
+                default:
+                    return 'fa-building';   
+            }
+        }
+
         // Uses the getIcon function to get the correct marker icon
         const customIcons = L.ExtraMarkers.icon({
-            icon: 'fa-city',
+            icon: getIcon(aoi.type),
             markerColor: 'red',
             shape: 'square',
             prefix: 'fa'
         });
-        if (aoi.name !== countryInfo.name) {
-           	let marker = L.marker(new L.LatLng(aoi.coords.lat, aoi.coords.lng), { title: aoi.name, icon: customIcons });
-            
-            // Gets wikidata
-            const wikiData = getWikipedia(aoi.name.replace(' ', '+'));
-            let wikiDataPages;
-            if (wikiData !== null) {
-                wikiDataPages = wikiData.query.pages;
-                const extract = wikiDataPages[Object.keys(wikiDataPages)[0]];
-                marker.bindPopup(`
-                <h3>${aoi.name}</h3>
-                <p>${extract.extract === undefined ? 'No Wikipedia data available...' : extract.extract}</p>
-                <p>Read more at <a href='https://en.wikipedia.org/?curid=${extract.pageid}'>Wikipedia</a></p>
-                `);   
+		let marker = L.marker(new L.LatLng(aoi.coords[1], aoi.coords[0]), { title: aoi.name, icon: customIcons });
 
-            }
-            cities.push(marker); 
+        // Gets the wikipedia excerpt for the location
+        const wikiData = getWikipedia(aoi.name.replace(' ', '+'));
+        let wikiDataPages;
+        if (wikiData !== null) {
+            wikiDataPages = wikiData.query.pages;        
+            const extract = wikiDataPages[Object.keys(wikiDataPages)[0]];
+		marker.bindPopup(
+            `<h3>${aoi.name}</h3>
+            ${extract.extract === undefined ? 'No wikipedia data available...' : extract.extract}
+            </p>`
+        );
+        aoiList.push(marker);
         }
 
     }    
 
     // Creating the layer group
-    aoiGroup = L.layerGroup(cities);
-    airportGroup = L.layerGroup(airportList);
+    aoiGroup = L.layerGroup(aoiList);
     map.addLayer(markers);
 
     const overlayAois = {
-        "Cities": aoiGroup,
-        "Airports": airportGroup
+        "Areas of Interest": aoiGroup
     };
 
-    layerControl = L.control.layers(null, overlayAois).addTo(map);
+    layerControl = L.control.layers(overlayAois).addTo(map);
+    map.on('baselayerchange', () => {
+        markers.addLayer(aoiGroup);
+    })
 }
 
-let marker
 // Func for getting basic info for the country as well as get the Lat/Lng to center the map when the user selects a country
 const centerMap = (countryCode) => {
     $.ajax({
@@ -183,6 +192,9 @@ const centerMap = (countryCode) => {
                 lat: capitalCoords[0].lat,
                 lng: capitalCoords[0].lon
             };
+            map.setView([coords.lat, coords.lng], 5);
+    
+            marker.setLatLng(coords);
 
             // Adds all the basic info to the country store object (countryInfo)
             countryInfo.name = info[0].name;
@@ -222,13 +234,14 @@ const centerMap = (countryCode) => {
                     </tbody>
                 </table>`
             )
+            marker.openPopup();
+
             createLayerData();
         }
-    });
-    
+    })
 };
 
-
+let marker;
 
 // Uses navigator to get the users current location and then makes a request to an API to get the country from the Lat/Lng returned
 const findUserLocation = () => {
@@ -245,8 +258,7 @@ const findUserLocation = () => {
                 const countryCode = result.trim();
                 setBorder('getCountryBorders', countryCode);
                 centerMap(countryCode);
-                $('#countries').val(countryCode).change();
-                
+                marker = L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
             }
         });
     };
@@ -271,7 +283,6 @@ const getCountryInfo = (countryCode) => {
         },
         success: (result) => {
             data = result;
-        
     }
     });
     return data;
@@ -302,7 +313,6 @@ $('#document').ready(() => {
                 return (at > bt)?1:((at < bt)?-1:0);
             }));  
             $('#countries').prepend('<option disabled selected>Select a country...</option>');
-            
         }
     });
 });
@@ -318,9 +328,8 @@ const setBorder = (action, countryCode) => {
             iso_a2: countryCode
         },
         success: (result) => {
-            border = L.geoJSON(result).setStyle({ fillColor: 'white', color: 'blue'}).addTo(map)
-            map.fitBounds(border.getBounds());
-            
+            border = L.geoJSON(result);
+            border.addTo(map);
         }
     });
 }
@@ -412,6 +421,7 @@ const displayWeatherInfo = (cityName) => {
     const spaceIndex = cityName.indexOf(' ');
     const formattedName = cityName.slice(0, spaceIndex);
     const data = getWeatherInfo(formattedName);
+    console.log(data);
     const forecast = data.data.forecast;
     $('#weatherLocation').html(
         `${data.data.location} Forecast`
@@ -432,6 +442,7 @@ const displayWeatherInfo = (cityName) => {
     $('#day2Icon').attr('src', forecast[2].conditionIcon);
 };
 
+alert('working')
 const displayCovidInfo = (country) => {
     // Change country names for few exceptions:
     if (country === 'United States') {
@@ -482,6 +493,7 @@ const displayCovidInfo = (country) => {
         }),
         $('#provinces').prepend('<option disabled selected>Select a province...</option>')
     )
+    getAreasOfInterest(countryInfo.capitalCoords.latitude, countryInfo.capitalCoords.longitude);
 }
 
 // Update the Covid Information when there is a change to the province selector
@@ -534,11 +546,13 @@ const getCovidInfo = (country) => {
 // This will update the map to display the relevant features once a new country is selected
 $('#countries').change(() => {    
     removeBorder();
+    alert('poes')
     removeLayer();
     $('#extraInfo').css('display', 'none');
     setBorder('getCountryBorders', $('#countries').val());
     centerMap($('#countries').val());
     getCountryInfo($('#countries').val());
+    
 });
 
 // Gets the coordinates for the capital city to be used for other functions
@@ -560,7 +574,7 @@ const getCoordsForCapital = (capital) => {
 };
 
 // Function to fetch the areas of interest 
-const getAreasOfInterest = (countryCode) => {
+const getAreasOfInterest = (lat, long) => {
     let data = '';
     $.ajax({
         url: 'libs/php/getAreasOfInterest.php',
@@ -568,7 +582,8 @@ const getAreasOfInterest = (countryCode) => {
         async: false,
         dataType: 'json',
         data: {
-            countryCode: countryCode
+            latitude: lat,
+            longitude: long
         },
         success: (result) => {
             data = result;
@@ -576,25 +591,6 @@ const getAreasOfInterest = (countryCode) => {
     });
     return data;
 };
-
-const getAirports = (countryCode) => {
-    let data = '';
-    $.ajax({
-        url: 'libs/php/getAirports.php',
-        type: 'POST',
-        async: false,
-        dataType: 'json',
-        data: {
-            countryCode: countryCode
-        },
-        success: (result) => {
-            data = result;
-        }
-    });
-    return data;
-};
-
-
 
 // Function to return the wikipedia excerpt
 const getWikipedia = (countryName) => {
@@ -623,6 +619,7 @@ const displayWikipediaInfo = (countryName) => {
     $('#covidInfo').css('display', 'none');
     $('#wikipediaInfo').css('display', 'block');
     $('#extraInfoModal').css('display', 'block');
+    console.log(extract)
     $('#wikipediaResult').html(
         `${extract.extract}
         <p>Read more at: <a href=https://en.wikipedia.org/?curid=${extract.pageid}>Wikipedia</a></p>`

@@ -1,6 +1,6 @@
 <?php
 
-$url = 'https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&exchars=1000&titles=' . $_REQUEST['countryName'] . '&format=json';
+$url = 'https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&exchars=500&titles=' . $_REQUEST['countryName'] . '&format=json';
 
 $curl = curl_init($url);
 

@@ -7,11 +7,12 @@
         overflow: hidden;
     }
     #extraInfo {
-    width: 25%;
-    height: fit-content;
-    max-height: 45vh;
-    position: absolute;
-    top: 450px;
+        width: 25%;
+        height: fit-content;
+        max-height: 45vh;
+        position: absolute;
+        top: 450px;
+        overflow: hidden
     }
     #countryInfoModal {
         width: 20%;
@@ -27,6 +28,9 @@
         position: absolute;
         top: 100px;
         left: 100px;
+    }
+    .modal-dialog-scrollable {
+        padding: 10px;
     }
 }
 
@@ -77,6 +81,7 @@
 
 #extraInfo {
     min-width: 342px;
+    overflow: hidden
 }
 
 #provinces {
@@ -92,3 +97,6 @@
     bottom: 20px;
 }
 
+.modal-body-scrollable {
+    padding: 10px;
+}
