@@ -179,10 +179,6 @@ const centerMap = (countryCode) => {
         success: (result) => {
             const info = getCountryInfo(countryCode);
             const capitalCoords = getCoordsForCapital(info[0].capital);            
-            const coords = {
-                lat: capitalCoords[0].lat,
-                lng: capitalCoords[0].lon
-            };
 
             // Adds all the basic info to the country store object (countryInfo)
             countryInfo.name = info[0].name;
@@ -335,6 +331,7 @@ const removeLayer = () => {
     map.removeControl(layerControl);
     map.removeLayer(markers);
     map.removeLayer(aoiGroup);
+    map.removeLayer(airportGroup)
 }
 
 

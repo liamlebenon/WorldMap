@@ -12,7 +12,7 @@
         max-height: 45vh;
         position: absolute;
         top: 450px;
-        overflow: hidden
+        overflow: hidden;
     }
     #countryInfoModal {
         width: 20%;
@@ -32,6 +32,10 @@
     .modal-dialog-scrollable {
         padding: 10px;
     }
+
+    #topbar select {
+        width: 25% !important;
+    }
 }
 
 .vertically-centered {
@@ -40,7 +44,7 @@
     left: 50%;
     transform: translate(-50%, -50%) !important;
     width: 45%;
-    min-width: 200px;
+    min-width: 300px;
 }
 
 .modal {
@@ -61,7 +65,7 @@
     height: 3rem;
     font-size: x-large;
     font-weight: bold;
-    width: 25%;
+    width: 60%;
     margin: auto;
     text-align: center;
 }
@@ -81,7 +85,11 @@
 
 #extraInfo {
     min-width: 342px;
-    overflow: hidden
+    overflow: hidden;
+}
+
+.modal-content {
+    padding: 10px;
 }
 
 #provinces {
