@@ -11,13 +11,13 @@
         height: fit-content;
         max-height: 45vh;
         position: absolute;
-        top: 450px;
+        top: 480px;
         overflow: hidden;
     }
     #countryInfoModal {
         width: 20%;
-        height:fit-content;
-        min-width: 278px;
+        min-width: 295px;
+        height: fit-content;
     }
     .modal.countryInfo{
         position: absolute;
@@ -85,6 +85,7 @@
 }
 
 #extraInfo {
+    position: absolute;
     min-width: 342px;
     overflow: hidden;
 }
