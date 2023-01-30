@@ -58,6 +58,18 @@ L.easyButton('<i class="fa-solid fa-virus-covid"></i>', function() {
     displayCovidInfo(countryInfo.name);
 }).addTo(map);
 
+const removeBorder = () => {
+    map.removeLayer(border);
+}
+
+const removeLayer = () => {
+    // Clear the layers of markers on the map
+    map.removeControl(layerControl);
+    map.removeLayer(markers);
+    map.removeLayer(aoiGroup);
+    map.removeLayer(airportGroup)
+}
+
 let markers;
 // The country store to contain all country data for easier use
 let countryInfo = {
@@ -239,10 +251,9 @@ const findUserLocation = () => {
             },
             success: (result) => {
                 const countryCode = result.trim();
+                $('#countries').val(countryCode );
                 setBorder('getCountryBorders', countryCode);
                 centerMap(countryCode);
-                $('#countries').val(countryCode).change();
-                
             }
         });
     };
@@ -267,7 +278,6 @@ const getCountryInfo = (countryCode) => {
         },
         success: (result) => {
             data = result;
-        
     }
     });
     return data;
@@ -316,24 +326,9 @@ const setBorder = (action, countryCode) => {
         success: (result) => {
             border = L.geoJSON(result).setStyle({ fillColor: 'white', color: 'blue'}).addTo(map)
             map.fitBounds(border.getBounds());
-            
         }
     });
 }
-
-// Helper function to remove borders
-const removeBorder = () => {
-    map.removeLayer(border);
-}
-
-const removeLayer = () => {
-    // Clear the layers of markers on the map
-    map.removeControl(layerControl);
-    map.removeLayer(markers);
-    map.removeLayer(aoiGroup);
-    map.removeLayer(airportGroup)
-}
-
 
 // Handle button clicks for extra information
 const getEconomicInfo = (currencyCode) => {
