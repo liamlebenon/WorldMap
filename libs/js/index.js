@@ -170,12 +170,27 @@ const createLayerData = () => {
     airportGroup = L.layerGroup(airportList);
     map.addLayer(markers);
 
+    const streetView = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+	    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+
+    const satelliteView = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        noWrap: true
+    });
+
+    const baseMaps = {
+        "Street View": streetView
+    };
+    
     const overlayAois = {
         "Cities": aoiGroup,
         "Airports": airportGroup
     };
 
-    layerControl = L.control.layers(null, overlayAois).addTo(map);
+    layerControl = L.control.layers(baseMaps, overlayAois).addTo(map);
+    layerControl.addBaseLayer(satelliteView, "Satellite View");
 }
 
 let marker
@@ -230,10 +245,9 @@ const centerMap = (countryCode) => {
                     </tbody>
                 </table>`
             )
-            createLayerData();
-        }
+            createLayerData();    
+        }  
     });
-    
 };
 
 
@@ -497,7 +511,7 @@ $('#provinces').change(() => {
               </tr>
               <tr>
                 <th><i class="fa-solid fa-calendar-days"></i> Last Updated</th>
-                <td>${data.lastUpdated}</td>
+                <td>${Date.parse(data.lastUpdated).toString('dS MMM yyyy')}</td>
               </tr>
             </tbody>
         </table>
